@@ -1,0 +1,776 @@
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[NikZ.dev Blog]]></title><description><![CDATA[NikZ.dev Blog]]></description><link>https://nikz.dev</link><generator>GatsbyJS</generator><lastBuildDate>Mon, 20 Feb 2023 19:19:55 GMT</lastBuildDate><item><title><![CDATA[Nitrox Calculator using SwiftUI (Part 1)]]></title><description><![CDATA[This is Part 1 of a multi-part series on creating a simple iOS application for scuba divers that calculates Maximum Operating Depth (MOD) of…]]></description><link>https://nikz.dev/nitrox-calculator-using-swiftui-part1/</link><guid isPermaLink="false">https://nikz.dev/nitrox-calculator-using-swiftui-part1/</guid><pubDate>Sun, 19 Feb 2023 08:00:00 GMT</pubDate><content:encoded>&lt;p&gt;This is Part 1 of a multi-part series on creating a simple iOS application for scuba divers that calculates Maximum Operating Depth (MOD) of a Nitrox gas mix&lt;/p&gt;
+&lt;h2&gt;Background&lt;/h2&gt;
+&lt;p&gt;Before we dive into the implementation details, let&apos;s have a look at what we are going to build and why it can be useful.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Enriched Air Nitrox (EAN)&lt;/strong&gt;, commonly referred to as just &lt;strong&gt;Nitrox&lt;/strong&gt; is a gas mixture of &lt;strong&gt;oxygen&lt;/strong&gt;, &lt;strong&gt;nitrogen&lt;/strong&gt; and minimal amount of &lt;strong&gt;other gasses&lt;/strong&gt;. The normal &lt;strong&gt;Air&lt;/strong&gt; that we breathe consists of 21% oxygen, 78% nitrogen and 1% other gasses. EAN, as the name implies, is usually a mix enriched with more oxygen. It&apos;s widely used in recreational and technical diving because the reduced amount nitrogen allows longer bottom time and reduced narcotic effects of the nitrogen at depth. However, like everything else in life, this doesn&apos;t come for free and without risks - beyond certain depths the oxygen in the mix can become toxic and affect the nervous system of the diver and even cause death.&lt;/p&gt;
+&lt;p&gt;That&apos;s why it&apos;s very important the gas to be properly analyzed and the Max Operating Depth (MOD) to be calculated and marked on the cylinder.&lt;/p&gt;
+&lt;h2&gt;Requirements&lt;/h2&gt;
+&lt;p&gt;The basic requirements for this calculator are:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Calculate and display MOD based on selected oxygen percentage&lt;/li&gt;
+&lt;li&gt;The oxygen percentage range should be between 21% and 100%&lt;/li&gt;
+&lt;li&gt;Allow selection of Partial Pressure of Oxygen (ppO₂) with values 1.4 / 1.5 / 1.6&lt;/li&gt;
+&lt;li&gt;Allow selection of metric or imperial measurement units from a settings screen&lt;/li&gt;
+&lt;li&gt;Remember the user settings between sessions&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;along the way we might add more requirements and enhancements, but for an MVP version these should be enough for us to get started.&lt;/p&gt;
+&lt;h2&gt;Concept&lt;/h2&gt;
+&lt;p&gt;It&apos;s always a good to have a basic idea of what the application will look like before you start building it, even if it&apos;s few boxes drawn on a napkin.&lt;/p&gt;
+&lt;p&gt;What we have here is:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Two tabs - MOD calculator and Settings screen&lt;/li&gt;
+&lt;li&gt;Basic text description of what we are actually calculating&lt;/li&gt;
+&lt;li&gt;Slider that changes the oxygen percentage&lt;/li&gt;
+&lt;li&gt;ppO₂ selector&lt;/li&gt;
+&lt;li&gt;Updating text for EAN mixture and the calculated MOD&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;span
+      class=&quot;gatsby-resp-image-wrapper&quot;
+      style=&quot;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 320px; &quot;
+    &gt;
+      &lt;span
+    class=&quot;gatsby-resp-image-background-image&quot;
+    style=&quot;padding-bottom: 211.39240506329116%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAqCAYAAACz+XvQAAAACXBIWXMAAAsTAAALEwEAmpwYAAAD10lEQVR42q2XWU8jORSF6/f30/wE4IUdGl6GFuKBHkAgaLaEPStJVaqSAIKwhBA4o+9GjoqkCobuseTYLl8fX9/l2PEKhYI2Nja0tbWlo6MjMV5aWtLIyIgmJia0uLio8fFxzc7Oan5+XpOTkxobG9P09LRyuZzVhYUFzc3NqVQqyatWqzo/P7dBt9sV5erqSsvLywYyNTWl0dFRAwKEbysrK6pUKib7+vpqG87MzCgMQ3n8xMvb29u7Pgtc6/rxeTemDYJAXq1WU6fTGZqMLxwsg7KUl5cX+b7f05BBfNIt+KwOAmK+IcDfqQ4Qu74D/JMCxuXl5XvAVqul+/t7PTw86PHxUc/Pz/aNyrfb21uzNzJ3d3c2dpHB93K53ANkQMEGmUxGZ2dnVpk7ODjQzs6OhRb9fD6vi4sLra2taW9vzzamsLnF4VePnCYLIEnhRVGU6hQHcHh4qEajMRQ2cTkAyZpPASnYigVpoUVpt9tmiiHAwRYHPD096ebmxtq0wAbw5OREHkdxnhoU4juEAXGsr69bJqQBshmyXrPZHAIc7KfleiLgoIZJu7MpR08zy4eASeRwfX1tgZ00NwRYr9eHNIzHlgt6HIccFPahhkmATgiB09NTFYtFc8z29ragu7SwOT4+7oVNEmCcVNEUDdHWkex/AvyTAqAd2QFidMcs8cr3MAr19+YP5cp5tZ/a71iJFs37gI4csCV3ApUAhnkgzLAW6ufGP/q28Je+/1yUX/WNBGAdcpfsQClADRAjf3Zk7Fa4LKp13/r8yA4w7oR4TQJPkgEwm83K44gf3XAwCJtCuIRPWuHIkLNpiJGxC4uxCUwMOzOmv7+/bzG4u7trtoO9XXw6e5Jx/dRzQLwYAGABMUXfzXMNAAD4RS6vk9Mzbe/8Ui2MlD06tvVsYpniBPE2Fw3hQP7C1KQU36iOlStVX7WorsNMVs2ra/3a3TMFDBAbsogBNmCCFu3QbHNz07iQMUcCGONnstn+BYYcpzMbEm+D3nROSvJymgM5HRt4BDGDNC5Me34k5TJmMw3TyOErT5FUwK+W+DWKEz3y9f94LAFomQLg72g2WDilXaPO5dy7XEb0m83G0MOJSt9V5N2jicpaOzJBjTC5SFupVFX1A0VR72rAHPGKHLFrclXfYti90oyxCdQ4Y0T1htqdbg8w4WHEN2SeO135ftC/xMCwtw0aOqcwWSyVVSiVFQS1vmDc+Mj4QaCo3lQYRn1lwDBAmCJeMOzq6mr/2ZFEU46NIJH4886ec6DSQVP65DSC8B8t1f3BYXP34KRlc0zmrgyexP8CcCuIKHO7Vp0AAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;
+  &gt;&lt;/span&gt;
+  &lt;img
+        class=&quot;gatsby-resp-image-image&quot;
+        alt=&quot;Wireframe&quot;
+        title=&quot;&quot;
+        src=&quot;/static/9e2316a7c00a608340492f07f114dd34/4e610/wireframe.png&quot;
+        srcset=&quot;/static/9e2316a7c00a608340492f07f114dd34/dda05/wireframe.png 158w,
+/static/9e2316a7c00a608340492f07f114dd34/679a3/wireframe.png 315w,
+/static/9e2316a7c00a608340492f07f114dd34/4e610/wireframe.png 320w&quot;
+        sizes=&quot;(max-width: 320px) 100vw, 320px&quot;
+        style=&quot;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&quot;
+        loading=&quot;lazy&quot;
+        decoding=&quot;async&quot;
+      /&gt;
+    &lt;/span&gt;&lt;/p&gt;
+&lt;h2&gt;Project Setup&lt;/h2&gt;
+&lt;p&gt;At the time of writing the latest version MacOS is Ventura 13.1, I&apos;m using Xcode 14.2 and targeting iOS 16.2. However, given the simplicity of the app it should be possible to target even older versions.&lt;/p&gt;
+&lt;p&gt;Let&apos;s start with creating a new project.&lt;/p&gt;
+&lt;p&gt;Fire up Xocde and select &quot;Create a new Xcode project&quot;&lt;/p&gt;
+&lt;p&gt;&lt;span
+      class=&quot;gatsby-resp-image-wrapper&quot;
+      style=&quot;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 473px; &quot;
+    &gt;
+      &lt;span
+    class=&quot;gatsby-resp-image-background-image&quot;
+    style=&quot;padding-bottom: 84.17721518987341%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAARCAYAAADdRIy+AAAACXBIWXMAAAsTAAALEwEAmpwYAAADBElEQVR42m1Uy27bRhTVvxhtY5uc4XMo0iRFUg+SsijJaiKVlqK2sIyghtJFgf5AsyuyDfpYFdnkE7IKiu7bZdf9hC6LLnhPwbGedhcH9zW8c+69w9vQNI0egnN+Lxkj9clHEjpTiHFOjLGjMw/R2Ch4CM4YDOEiev41Wl9+i3i6QhSGME0TnHP83zcy4eYmbG+Vtm6Q+skJdb56Rdfv/6GXv/1L8ze/UjRbkxskxJhKR+c3pGr9kOGeqW5AfXKC5MVrjH/5G7dv/8Lomx+QffcBuu2CM/URsx3Dw+z7hCbY6QmC+fcof66QvvgJ7dWPKF79Cc2wwTk7bs9BlY0N7W3JO4Zc+Rgie4lw/Tt4+AXC9R/wl+/AHrN7nHDr1HUdqqpCUZSdVLjAuaJDF11wzQRj97FtnDF2SGZfsqIodHNzg/V6jdVqhfl8jrIssVhcYzab4tnTMcbjEW5vbzGZTLBcLnF3dwfP8+rkhz3c0/V9H/1+jsFgcIQ8z5H3+0jTFFmWSvvyso/RaATHcbB5m9uSNWKMy5JVleHs/BxnZ+dSCuFI2LYNWwi4rgdN03fx09MzqIyBaxoxvnk2ps6p5ZkIPYt8h8EXDIHD4TscnqXcw66h4sJWpT/YIGxq0r4QjCKXwzI0ajQtRl4rhyIyGhYDLBbPMb66wmTyKa6v5/isLGU/a7suTzgOXNdF03VhWTYcpwlbNKnlWXAtTg1hMoriNhy/TWnbR9Hv4jJNUOQd5N0I/TTGZZZIX9oJj+xu7GOQt5H3YkojB45Z/ylMIac9gxNf0WwyQDmdoJxeYVE+xXI+k/LzxQxx6OGiaSG8EAg8W8KxOGyDQRiMhMm3Q2HE7RiqnVAYBNSKYup0exRFsUQvzSiOEwpbEflBSEHYojhpS+i6UQ+0Hsh+KJyrpHs5uNfHaFhgPB6jKApMp88wLAoMh0PZu3rLmKYBy7KkXj9sbbd1+OG2YZUmWhW3o6qdxFWvl1adTqfK87zKsqzqdrtVHMcSSZLIWK1rmlZxzqU8xH8IZEVQLm75/AAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;
+  &gt;&lt;/span&gt;
+  &lt;img
+        class=&quot;gatsby-resp-image-image&quot;
+        alt=&quot;Create New Project in Xcode&quot;
+        title=&quot;&quot;
+        src=&quot;/static/181f8b3374219c9f00c04162a5962b2a/f4edb/create-project.png&quot;
+        srcset=&quot;/static/181f8b3374219c9f00c04162a5962b2a/dda05/create-project.png 158w,
+/static/181f8b3374219c9f00c04162a5962b2a/679a3/create-project.png 315w,
+/static/181f8b3374219c9f00c04162a5962b2a/f4edb/create-project.png 473w&quot;
+        sizes=&quot;(max-width: 473px) 100vw, 473px&quot;
+        style=&quot;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&quot;
+        loading=&quot;lazy&quot;
+        decoding=&quot;async&quot;
+      /&gt;
+    &lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;We&apos;ll use the basic App template for iOS&lt;/p&gt;
+&lt;p&gt;&lt;span
+      class=&quot;gatsby-resp-image-wrapper&quot;
+      style=&quot;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 630px; &quot;
+    &gt;
+      &lt;span
+    class=&quot;gatsby-resp-image-background-image&quot;
+    style=&quot;padding-bottom: 70.88607594936708%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAOCAYAAAAvxDzwAAAACXBIWXMAAAsTAAALEwEAmpwYAAACkUlEQVR42oWS3ZLjJhCF9RxjW5YAARISAixZlmV7PPszU9lNUpVKcpm3SFUeIU/tPinwzM7mIpWLU3RT0N3ng2wOEz1frvS0PNKn6wtd5kea92daDleyTaBG9tRqR632ZJSjRlrSoiMtWjLNnup6JFkFkjKQFP6WjdbRb18+4et1wdPjZyzTAtcFhH7AECYEN2Lwe4xhws7v4bodjO6SwnhB546QypHUHloPt6xhhg7+gml4IV81xFaaROFIFJ7YuiYelffEc3vPNw1VpaeqcMTXDVXblpQ8kuQDqq25ZR3XJNQTtu3vZCsLsdFg5QBencHXOuVCXRHPxDjuleyAshjANzXKBwne/kyMzeBrdctMKcm6HxA+/Ek919DMYmdnDPYIUwWUKw2rB3R6QLmqoUqL0/QRUzhD5AbOTJiHK+39GbVwt6zaNmSVh2uPVJdNOqR5gBYB1bZNUyjmk/j6XjAWiw3jWVl08O1EsXm1bW8Z32gqixFMfqQ4TbTE+AImn8BWCnylwMQZTJzAVxJ8Y1A8KJQPGnzTJJUrHfnGBres5j3t7BG7bqZO7dJUY79gdCfUvI82MIULJn+GZj1eLya9FRS5odf1lqnSUmRk1Y46NaRLqRDvk53YwJs9XLNP8X+IXtfIsCVnZnh7ob7ew6oBPG8hiv59ktwmq1Vu/r+giAzZAcz8ROUqsqnAxQnCfE38IjfRfLl/o8jwO6vflCybu2WRNxS/xNAvFO3Hbjt7pKE/kSy6pBgHu6Q4fuxXZu9aa4oPKPImMuzSY6QHKe4W3hi+Wfo+f8MQ+aqyS6sUI7ScULFA2dgv9OPzL3RdnkkW7b86x+mj3nPzTb490ORPZNszuZe/aP71b6qnP27/APwNooVlOX3HAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;
+  &gt;&lt;/span&gt;
+  &lt;img
+        class=&quot;gatsby-resp-image-image&quot;
+        alt=&quot;Create New Project in Xcode - Select App Type&quot;
+        title=&quot;&quot;
+        src=&quot;/static/8551b200301a1713583ebc5c6c06810d/50637/create-project-app.png&quot;
+        srcset=&quot;/static/8551b200301a1713583ebc5c6c06810d/dda05/create-project-app.png 158w,
+/static/8551b200301a1713583ebc5c6c06810d/679a3/create-project-app.png 315w,
+/static/8551b200301a1713583ebc5c6c06810d/50637/create-project-app.png 630w,
+/static/8551b200301a1713583ebc5c6c06810d/21910/create-project-app.png 716w&quot;
+        sizes=&quot;(max-width: 630px) 100vw, 630px&quot;
+        style=&quot;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&quot;
+        loading=&quot;lazy&quot;
+        decoding=&quot;async&quot;
+      /&gt;
+    &lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;for Product Name we can set &lt;strong&gt;NitroxCalculator&lt;/strong&gt; and for Organization Identifier &lt;strong&gt;com.example.dev.nikz&lt;/strong&gt; but you can switch to whatever you want. The rest of the options remain with the default values&lt;/p&gt;
+&lt;p&gt;&lt;span
+      class=&quot;gatsby-resp-image-wrapper&quot;
+      style=&quot;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 630px; &quot;
+    &gt;
+      &lt;span
+    class=&quot;gatsby-resp-image-background-image&quot;
+    style=&quot;padding-bottom: 70.25316455696203%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAOCAYAAAAvxDzwAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB5UlEQVR42o2S3W7aQBCFeZBGVYQKxfb+GbCxsbExGBsBFtRpFJWbSn2IPkKfOnOqHZoGUEJ78WnWO7tnxrOno72AonHKjE3MxMGMjAiod+9Svyuo3/X+i969Rx2nL0hKASEuUUpBa32FuuIsZzSEq6jjDSQZw5v0glKKpJSMkIqRSpHS5orTWYsV9aygO5Bk1XlTcUQcx0iTBFGSody2qJoHzOsGk6xElK8QZSuOYVZBa4P3BbWGMQa+P2TRLM/Rfn3E07cj2odHbHYNNtsds232yOsnqH8JZlmGoiiYNE2RZxlWZYnlcsnfQRAgDEMEwRij0Yj/6B1Bngd838dsNmPBJElQVRVzKrLAYrHgtT0TTgsorW93aEWllMjzHPP5HMfjEW3bomkaHA6HE/s92vYBxfY7lPahbwm+EEURz3G9XqOua+7SdjydThm7DqL8dofn3rNd2mgv2rnaAjZ/8qnkaP2reYb6SlC/zvCEhrWQfXH7CJNwguFw+KbZldKXgh53aE2rbKeX/DWuLXqV13/uWDgvSbiSOk5PkhIG0tXwBhLuGd4V5zl7XnoGwtUQYgQpAziffeqMZPy8WR2oSGv69FFQ94ND3TuXunfOG7zuz6KSdtWB4mBJsvxJky+/yIl/PP8GrrzAxLU2Sq8AAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;
+  &gt;&lt;/span&gt;
+  &lt;img
+        class=&quot;gatsby-resp-image-image&quot;
+        alt=&quot;Create New Project in Xcode - Set Name&quot;
+        title=&quot;&quot;
+        src=&quot;/static/bb59deed650a84f8d597bd70e8374d3c/50637/create-project-set-name.png&quot;
+        srcset=&quot;/static/bb59deed650a84f8d597bd70e8374d3c/dda05/create-project-set-name.png 158w,
+/static/bb59deed650a84f8d597bd70e8374d3c/679a3/create-project-set-name.png 315w,
+/static/bb59deed650a84f8d597bd70e8374d3c/50637/create-project-set-name.png 630w,
+/static/bb59deed650a84f8d597bd70e8374d3c/7842b/create-project-set-name.png 800w&quot;
+        sizes=&quot;(max-width: 630px) 100vw, 630px&quot;
+        style=&quot;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&quot;
+        loading=&quot;lazy&quot;
+        decoding=&quot;async&quot;
+      /&gt;
+    &lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;Now let&apos;s define the Display Name and change few more settings:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Select the project and go to the General tab of the &lt;code&gt;NitroxCalculator&lt;/code&gt; target&lt;/li&gt;
+&lt;li&gt;Change Display Name to &lt;strong&gt;Nitrox Calculator&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;Uncheck Landscape Left and Landscape Right&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;span
+      class=&quot;gatsby-resp-image-wrapper&quot;
+      style=&quot;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 630px; &quot;
+    &gt;
+      &lt;span
+    class=&quot;gatsby-resp-image-background-image&quot;
+    style=&quot;padding-bottom: 76.58227848101265%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAPCAYAAADkmO9VAAAACXBIWXMAABYlAAAWJQFJUiTwAAACVklEQVR42n2U3XKbMBSEeY36DxuEBOgXAQbH1HHc1E09bie96vQV+v732zmycTITTy92JAbp056zgqjdnvB8OGH38ITadajdBlo+wOUNDPdwZkDJKljhoUQN235HO7zC+mcUiUWemKAiMeBLhah2PV5fzvhx+oW130AKiyKtwJcGyUxCm0e01SPWboDmNYqVBl+UELGCZB5F4sKBJLE0iAhw/HrGYXeEKT14UsKVHVrZQsw4komAWGqYvIXN11hNCrC5RDorw5ivLJJpEZ5JkcordN0B++0X1KZDniqY/jfk41/M7R8kc410IsD5A7weIGINHusAI0fkjObZQgVFmntI5lCmDop7KF6BiT0SeUYsjqHsZJqDxRbltUQeq5tDgoT59TlyRQtXtrBFAyNq0AFsKsA+MbAJQ7aQcMUaXnYQKxPKI4f5ytxccRpjCzZXiLzqwmKCElBl/tKjOZ0swRYS5TUk2vwGtFeH+gJeOrCFQVSrPjgwogkpUnK0cGw8LVa8DnOCEdwWa3TuMxqzhZc9iFHpASw2l5JHmMregGNq6axAMr30h4BebbCp99j1zxjWhwBe2wFatMFtRCW+6R7w4ow0OieHmjdhLe2hvRRqSFkygtS3l/dKrmR/6y31j64L9fj9IaOiywkfgRRIcDgvQwDj3aP3Mqsx9N/gVX+7PunVQADKzN8BlnckUawsyqzBdnNCozehv6T0+rVEY+8oSZLMPgLfl5QvNfJsjd3Tb2ybHcTKXn8SbizZ32D/A44jNZ++65fDTxz355B4VXZw6nJt/gGD38DJLTcB5wAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;
+  &gt;&lt;/span&gt;
+  &lt;img
+        class=&quot;gatsby-resp-image-image&quot;
+        alt=&quot;App Setting&quot;
+        title=&quot;&quot;
+        src=&quot;/static/0ccd5e325a92ceb7bbb92a91271f3729/50637/app-settings.png&quot;
+        srcset=&quot;/static/0ccd5e325a92ceb7bbb92a91271f3729/dda05/app-settings.png 158w,
+/static/0ccd5e325a92ceb7bbb92a91271f3729/679a3/app-settings.png 315w,
+/static/0ccd5e325a92ceb7bbb92a91271f3729/50637/app-settings.png 630w,
+/static/0ccd5e325a92ceb7bbb92a91271f3729/fddb0/app-settings.png 945w,
+/static/0ccd5e325a92ceb7bbb92a91271f3729/f46b1/app-settings.png 1260w,
+/static/0ccd5e325a92ceb7bbb92a91271f3729/7e617/app-settings.png 2124w&quot;
+        sizes=&quot;(max-width: 630px) 100vw, 630px&quot;
+        style=&quot;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&quot;
+        loading=&quot;lazy&quot;
+        decoding=&quot;async&quot;
+      /&gt;
+    &lt;/span&gt;&lt;/p&gt;
+&lt;h2&gt;TabView&lt;/h2&gt;
+&lt;p&gt;Now we can define the basic &lt;a href=&quot;https://developer.apple.com/documentation/swiftui/tabview&quot;&gt;TabView&lt;/a&gt; structure.&lt;/p&gt;
+&lt;p&gt;For a start it will be just a placeholder Text and tab icons using &lt;a href=&quot;https://developer.apple.com/documentation/swiftui/label&quot;&gt;Label&lt;/a&gt; with &lt;code&gt;systemImage&lt;/code&gt;.&lt;/p&gt;
+&lt;pre class=&quot;grvsc-container default-dark&quot; data-language=&quot;swift&quot; data-index=&quot;0&quot;&gt;&lt;code class=&quot;grvsc-code&quot;&gt;&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk4&quot;&gt;struct&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;ContentView&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;: View {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;var&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; body: some View {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        TabView {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;            &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;Text&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;MOD Calc TODO&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;tabItem&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;Label&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;MOD&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;, &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;systemImage&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;: &lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;gauge&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;            }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;            &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;Text&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;Settings TODO&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;tabItem&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;Label&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;Settings&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;, &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;systemImage&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;: &lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;gear&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;            }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;Result&lt;/h2&gt;
+&lt;img src=&quot;/7c275e8be83b96b3e36b475bf84c50c8/result.gif&quot; alt=&quot;Result&quot; class=&quot;gif&quot;&gt;
+&lt;h2&gt;Next&lt;/h2&gt;
+&lt;p&gt;Next we will implement the settings screen and the basic structure of the MOD calculator screen...&lt;/p&gt;
+&lt;style class=&quot;grvsc-styles&quot;&gt;
+  .grvsc-container {
+    overflow: auto;
+    position: relative;
+    -webkit-overflow-scrolling: touch;
+    padding-top: 1rem;
+    padding-top: var(--grvsc-padding-top, var(--grvsc-padding-v, 1rem));
+    padding-bottom: 1rem;
+    padding-bottom: var(--grvsc-padding-bottom, var(--grvsc-padding-v, 1rem));
+    border-radius: 8px;
+    border-radius: var(--grvsc-border-radius, 8px);
+    font-feature-settings: normal;
+    line-height: 1.4;
+  }
+  
+  .grvsc-code {
+    display: table;
+  }
+  
+  .grvsc-line {
+    display: table-row;
+    box-sizing: border-box;
+    width: 100%;
+    position: relative;
+  }
+  
+  .grvsc-line &gt; * {
+    position: relative;
+  }
+  
+  .grvsc-gutter-pad {
+    display: table-cell;
+    padding-left: 0.75rem;
+    padding-left: calc(var(--grvsc-padding-left, var(--grvsc-padding-h, 1.5rem)) / 2);
+  }
+  
+  .grvsc-gutter {
+    display: table-cell;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+  }
+  
+  .grvsc-gutter::before {
+    content: attr(data-content);
+  }
+  
+  .grvsc-source {
+    display: table-cell;
+    padding-left: 1.5rem;
+    padding-left: var(--grvsc-padding-left, var(--grvsc-padding-h, 1.5rem));
+    padding-right: 1.5rem;
+    padding-right: var(--grvsc-padding-right, var(--grvsc-padding-h, 1.5rem));
+  }
+  
+  .grvsc-source:empty::after {
+    content: &apos; &apos;;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+  }
+  
+  .grvsc-gutter + .grvsc-source {
+    padding-left: 0.75rem;
+    padding-left: calc(var(--grvsc-padding-left, var(--grvsc-padding-h, 1.5rem)) / 2);
+  }
+  
+  /* Line transformer styles */
+  
+  .grvsc-has-line-highlighting &gt; .grvsc-code &gt; .grvsc-line::before {
+    content: &apos; &apos;;
+    position: absolute;
+    width: 100%;
+  }
+  
+  .grvsc-line-diff-add::before {
+    background-color: var(--grvsc-line-diff-add-background-color, rgba(0, 255, 60, 0.2));
+  }
+  
+  .grvsc-line-diff-del::before {
+    background-color: var(--grvsc-line-diff-del-background-color, rgba(255, 0, 20, 0.2));
+  }
+  
+  .grvsc-line-number {
+    padding: 0 2px;
+    text-align: right;
+    opacity: 0.7;
+  }
+  
+  .default-dark {
+    background-color: #1E1E1E;
+    color: #D4D4D4;
+  }
+  .default-dark .mtk4 { color: #569CD6; }
+  .default-dark .mtk1 { color: #D4D4D4; }
+  .default-dark .mtk10 { color: #4EC9B0; }
+  .default-dark .mtk11 { color: #DCDCAA; }
+  .default-dark .mtk8 { color: #CE9178; }
+  .default-dark .mtk12 { color: #9CDCFE; }
+  .default-dark .grvsc-line-highlighted::before {
+    background-color: var(--grvsc-line-highlighted-background-color, rgba(255, 255, 255, 0.1));
+    box-shadow: inset var(--grvsc-line-highlighted-border-width, 4px) 0 0 0 var(--grvsc-line-highlighted-border-color, rgba(255, 255, 255, 0.5));
+  }
+&lt;/style&gt;</content:encoded></item><item><title><![CDATA[Custom WPF Controls]]></title><description><![CDATA[Windows Presentation Foundation (WPF) gives developers a lot of options to create flexible user interfaces with powerful controls and user…]]></description><link>https://nikz.dev/custom-wpf-controls/</link><guid isPermaLink="false">https://nikz.dev/custom-wpf-controls/</guid><pubDate>Wed, 08 Feb 2023 08:00:00 GMT</pubDate><content:encoded>&lt;p&gt;Windows Presentation Foundation (WPF) gives developers a lot of options to create flexible user interfaces with powerful controls and user friendly animations. It&apos;s no surprise that since 2010 Visual Studio heavily utilizes WPF for its UI. UserControls are the most common building block of a WPF application, but there is one less known and used option - implementing your own custom controls&lt;/p&gt;
+&lt;h2&gt;Why Custom Controls?&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Custom Controls can be easily restructured using a custom ControlTemplate&lt;/li&gt;
+&lt;li&gt;Custom Controls allow you to support different themes and styles&lt;/li&gt;
+&lt;li&gt;Best approach when creating a library of reusable controls&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Basic steps to define a Custom Control&lt;/h2&gt;
+&lt;p&gt;In it&apos;s most basic form, creating a Custom Control requires:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Defining a &lt;code&gt;Style&lt;/code&gt; with &lt;code&gt;ControlTemplate&lt;/code&gt; in Themes/generic.xaml&lt;/li&gt;
+&lt;li&gt;Creating a class that derived from &lt;code&gt;Control&lt;/code&gt; and setting &lt;code&gt;DefaultStyleKeyProperty&lt;/code&gt; in the static constructor&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2&gt;Creating a Custom Control - Example&lt;/h2&gt;
+&lt;p&gt;For this example, let&apos;s keep it simple and create a very basic form control with &lt;code&gt;Label&lt;/code&gt; and &lt;code&gt;TextBox&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span
+      class=&quot;gatsby-resp-image-wrapper&quot;
+      style=&quot;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 630px; &quot;
+    &gt;
+      &lt;span
+    class=&quot;gatsby-resp-image-background-image&quot;
+    style=&quot;padding-bottom: 56.32911392405063%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/jpeg;base64,/9j/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wgARCAALABQDASIAAhEBAxEB/8QAGAAAAgMAAAAAAAAAAAAAAAAAAAMBBAX/xAAWAQEBAQAAAAAAAAAAAAAAAAADAQL/2gAMAwEAAhADEAAAAdVtWFB4kmf/xAAYEAADAQEAAAAAAAAAAAAAAAAAARECEv/aAAgBAQABBQLOEcKDKVn/xAAXEQEAAwAAAAAAAAAAAAAAAAAAESFR/9oACAEDAQE/AaxD/8QAFhEBAQEAAAAAAAAAAAAAAAAAAQAS/9oACAECAQE/AUWy3//EABQQAQAAAAAAAAAAAAAAAAAAACD/2gAIAQEABj8CX//EABoQAQEAAgMAAAAAAAAAAAAAAAEAESExUWH/2gAIAQEAAT8hSyGmbFyhdt6X/9oADAMBAAIAAwAAABAMz//EABYRAQEBAAAAAAAAAAAAAAAAAAEREP/aAAgBAwEBPxAkmH//xAAWEQADAAAAAAAAAAAAAAAAAAAQESH/2gAIAQIBAT8QqMH/xAAaEAEAAwEBAQAAAAAAAAAAAAABABEhYUHh/9oACAEBAAE/EKwq5dDEzoHsXeRJYUeM+mnZP//Z&apos;); background-size: cover; display: block;&quot;
+  &gt;&lt;/span&gt;
+  &lt;img
+        class=&quot;gatsby-resp-image-image&quot;
+        alt=&quot;Custom Control&quot;
+        title=&quot;&quot;
+        src=&quot;/static/1e09daa4cffb2f6dfd42b1c640bea958/83b6b/final.jpg&quot;
+        srcset=&quot;/static/1e09daa4cffb2f6dfd42b1c640bea958/ebfe4/final.jpg 158w,
+/static/1e09daa4cffb2f6dfd42b1c640bea958/4fcc2/final.jpg 315w,
+/static/1e09daa4cffb2f6dfd42b1c640bea958/83b6b/final.jpg 630w,
+/static/1e09daa4cffb2f6dfd42b1c640bea958/5fd6b/final.jpg 800w&quot;
+        sizes=&quot;(max-width: 630px) 100vw, 630px&quot;
+        style=&quot;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&quot;
+        loading=&quot;lazy&quot;
+        decoding=&quot;async&quot;
+      /&gt;
+    &lt;/span&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Create a new WPF Application project&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;span
+      class=&quot;gatsby-resp-image-wrapper&quot;
+      style=&quot;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 630px; &quot;
+    &gt;
+      &lt;span
+    class=&quot;gatsby-resp-image-background-image&quot;
+    style=&quot;padding-bottom: 67.72151898734178%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAOCAYAAAAvxDzwAAAACXBIWXMAAA7DAAAOwwHHb6hkAAABuUlEQVR42p2T3ZKCMAyFeRJHxIJFCxQFQfwZL9z3f6PsfMGou3u3F2cKbXpycpImu91OvPeK7Xar63q9Vmw2GynLUsF+nueKoij0jJgsy8Q5Jxtfii9LSa7Xq5xOJ5lOk9zvd9nv97JarTS4bVvpDp10XScxRmmaRhFC0H9Ic+c03hVefLmVpIlRYhOlrmtp960qybKZECUEL5dLSdP0pXCxWCj4Jj7V86XGJ1VdSRWChFBpyYBAiOqmVvW3202maVL1JEYla1XNd6x0FCccUlIIO3FureUUT0JfeiXt+15jIIcIJeYj6w9CAsiMX3xDaApRgLrz+SzDMCgh5OwHrWqGWfNSiMFVmIMIhpCMeZFreZARQ1Iu0VVIrOPA9pL4bAqyMf4zY3/stfOPx5cqvVwuqna26K2QyhgtJWQOMZYMqKJr7jkKsY0yjIMSofJ4PKpi7lAJsDk2tQkXAWRmroFElIl3qMJrW1GEunnMsndT7FUYmX2ThLlE4TiMOjYotMZxGbLPF/OH8Dc5l21cxnF8gT1KtXJJjv9a8meJv2EvxGz5BPv21iE18sTa/h8cDgedS3zGDjz/BjPhpIFGZA1BAAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;
+  &gt;&lt;/span&gt;
+  &lt;img
+        class=&quot;gatsby-resp-image-image&quot;
+        alt=&quot;Create a new Project - Step 1&quot;
+        title=&quot;&quot;
+        src=&quot;/static/94a58fd29be007e791b4fc147b7c56d2/50637/create-project.png&quot;
+        srcset=&quot;/static/94a58fd29be007e791b4fc147b7c56d2/dda05/create-project.png 158w,
+/static/94a58fd29be007e791b4fc147b7c56d2/679a3/create-project.png 315w,
+/static/94a58fd29be007e791b4fc147b7c56d2/50637/create-project.png 630w,
+/static/94a58fd29be007e791b4fc147b7c56d2/fe8a1/create-project.png 919w&quot;
+        sizes=&quot;(max-width: 630px) 100vw, 630px&quot;
+        style=&quot;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&quot;
+        loading=&quot;lazy&quot;
+        decoding=&quot;async&quot;
+      /&gt;
+    &lt;/span&gt;&lt;/p&gt;
+&lt;ol start=&quot;2&quot;&gt;
+&lt;li&gt;Give it a name and select location&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;span
+      class=&quot;gatsby-resp-image-wrapper&quot;
+      style=&quot;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 630px; &quot;
+    &gt;
+      &lt;span
+    class=&quot;gatsby-resp-image-background-image&quot;
+    style=&quot;padding-bottom: 67.72151898734178%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAOCAYAAAAvxDzwAAAACXBIWXMAAA7DAAAOwwHHb6hkAAABJ0lEQVR42p2Ta46DMAyEuQov8SZLgIXAUij3v9Os7K2rgMK26o9RwEq+jB3bK8sSRVEgy1LkeY4sy0CxOI4RhiGiKHop2pskCZ/1bsuKfd8xzQbGGCzLD9Z1RV3XTiDFXAqCgKFe33XQTYOiLDlQK8VOm6+GAbRRDsi3gM8XpWkKb1s3DMOAruuglGLbVAKC0krp27JhNvQJnKYJbavZZVVVB9kg+acLXfU9AIfRoKyq58OIu7MkTqW5BO73O27rBmMmtFrzY5AEIu5EL1PWuuX6ffc9ryJxJCmKbIDT4TzPGMcR4zCiodcuiodLxY4Iem6Rf4GH3nq0xlmuXnTFGHh14zuAS4efys7C9/2/SbkapXckbSTzz7NM1E9F3dD3PbTWPG0E/wXdgpq/TKo2vwAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;
+  &gt;&lt;/span&gt;
+  &lt;img
+        class=&quot;gatsby-resp-image-image&quot;
+        alt=&quot;Create a new Project - Step 2&quot;
+        title=&quot;&quot;
+        src=&quot;/static/56ea154f158dc935448b780ab0888144/50637/create-project-step-2.png&quot;
+        srcset=&quot;/static/56ea154f158dc935448b780ab0888144/dda05/create-project-step-2.png 158w,
+/static/56ea154f158dc935448b780ab0888144/679a3/create-project-step-2.png 315w,
+/static/56ea154f158dc935448b780ab0888144/50637/create-project-step-2.png 630w,
+/static/56ea154f158dc935448b780ab0888144/fe8a1/create-project-step-2.png 919w&quot;
+        sizes=&quot;(max-width: 630px) 100vw, 630px&quot;
+        style=&quot;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&quot;
+        loading=&quot;lazy&quot;
+        decoding=&quot;async&quot;
+      /&gt;
+    &lt;/span&gt;&lt;/p&gt;
+&lt;ol start=&quot;3&quot;&gt;
+&lt;li&gt;Visual Studio will ask for Framework - at the time of writing .NET 7.0 is the latest version available in Visual Studio 2022&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;With the steps above we&apos;ll have our basic WPF application and we can move to the next step.&lt;/p&gt;
+&lt;ol start=&quot;4&quot;&gt;
+&lt;li&gt;
+&lt;p&gt;Add a folder called &lt;code&gt;Themes&lt;/code&gt; in the root folder of the application&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Inside Themes add a Resource Dictionary file named &lt;code&gt;generic.xaml&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;span
+      class=&quot;gatsby-resp-image-wrapper&quot;
+      style=&quot;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 630px; &quot;
+    &gt;
+      &lt;span
+    class=&quot;gatsby-resp-image-background-image&quot;
+    style=&quot;padding-bottom: 62.0253164556962%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAMCAYAAABiDJ37AAAACXBIWXMAAA7DAAAOwwHHb6hkAAAB5klEQVR42o1S226rMBDkQ3JrAAWCCTfbGGwToEmTVsr/f84c7eZy2odKfRgteNfj8YyDNBWoSoWq1EiSHGUpITIFkVUQmcTbW4wo3P0JYbhD0JkO8zxjGieczyecTyfY3qHrOnSdhZQNhMgeEA9kvyJI0z3GecbtdsPlckHf99BaIwxDRGGIOI6xWCyxWCxeWC6XvyIQeY7TPODr6xPDMEBrhbIs0TQN6ppQQ0qJttWs2hjD/99Bs1SrqkKw3W5R1CWc96yOrm+tRdu2vNmYlhUPg8f184rr5QrvPa/d+wbjOOJ4PGK/3yNYr9fYJQm0IQUG0zRjniZ456GUZM/IllbV+DhNmOd3OGeR5zmyLEMuBCsjkE3BZrPBarVCGEVQSrMypRTjcDigrCrIpkHZ1DDewXY9K/TOoa5qniFyquQ3E5KZcRRhHAYmpLRoiNRJqdiKqm4wzu/4OJ/Za1JUFMWLjL6jKHoQrlacaG8M+/c8lQgpFAqJqrMOzt1BQRwOdzKao/kfCqM4hvNHDmU8jlBSPTbdNzSywTSNfCClTZWSJSKtW/7+r/BBaJ3H4AkDp0eEdJWiIIUVrO2ZiHqk+N4rXk/nh0JKiBqmbXkoTVMkSQIhcn4igtOs+bpPlc91mqUnQyn/AwwkeA1CFuc/AAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;
+  &gt;&lt;/span&gt;
+  &lt;img
+        class=&quot;gatsby-resp-image-image&quot;
+        alt=&quot;Add generic.xaml - Step 1&quot;
+        title=&quot;&quot;
+        src=&quot;/static/63c93a4cf5df3d9cae627f87873b6f4e/50637/add-generic-xaml-step-1.png&quot;
+        srcset=&quot;/static/63c93a4cf5df3d9cae627f87873b6f4e/dda05/add-generic-xaml-step-1.png 158w,
+/static/63c93a4cf5df3d9cae627f87873b6f4e/679a3/add-generic-xaml-step-1.png 315w,
+/static/63c93a4cf5df3d9cae627f87873b6f4e/50637/add-generic-xaml-step-1.png 630w,
+/static/63c93a4cf5df3d9cae627f87873b6f4e/2d0a6/add-generic-xaml-step-1.png 730w&quot;
+        sizes=&quot;(max-width: 630px) 100vw, 630px&quot;
+        style=&quot;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&quot;
+        loading=&quot;lazy&quot;
+        decoding=&quot;async&quot;
+      /&gt;
+    &lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span
+      class=&quot;gatsby-resp-image-wrapper&quot;
+      style=&quot;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 630px; &quot;
+    &gt;
+      &lt;span
+    class=&quot;gatsby-resp-image-background-image&quot;
+    style=&quot;padding-bottom: 46.835443037974684%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAJCAYAAAAywQxIAAAACXBIWXMAAA7DAAAOwwHHb6hkAAABYUlEQVR42lWRaW7CQAyF5yIkBEjIAmRfZmiLKOJaCIFIiRTO/KrnMoj+sJx4+fzsUX3/g9vthtPphPP5LNb3PR6PB4ZhkO/7/Y5hGHG9XsUul4vEx3GUHPutV2maoq5rzOdzLBYLzGYzNG2H3W4How201ijLEllWYL1eI89zVFWFJEleuSiK4Ps+wjCEKssK+/0eBGdZhs1mA2226LpOGtu2FRAHcWAcxwJljDXMN03z6ldFUeDwfUCeZ1K0Wq2kkEmqYIwQAieTifgoDKXO1ttvQhUbj8cjjDESJOTz6wMcxBzVELhcLuG6jqhkDdcjgBvR2EuvtDYim1NYYG9DGCHT6RSO44g6et6aMJoFWRNg+pxgkwS2XStADgmCQEAWSmASx/8UvntFCJNci2syUZR/ngp5M2ue58H3A3nV8HlH9vGfRjGKL8SV+aK8F4NURSPQrvduVMlTuK4rICqzKn8BZFkmYnucyhIAAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;
+  &gt;&lt;/span&gt;
+  &lt;img
+        class=&quot;gatsby-resp-image-image&quot;
+        alt=&quot;Add generic.xaml - Step 2&quot;
+        title=&quot;&quot;
+        src=&quot;/static/89c422056d6ebe33d72e5aca23104ea1/50637/add-generic-xaml-step-2.png&quot;
+        srcset=&quot;/static/89c422056d6ebe33d72e5aca23104ea1/dda05/add-generic-xaml-step-2.png 158w,
+/static/89c422056d6ebe33d72e5aca23104ea1/679a3/add-generic-xaml-step-2.png 315w,
+/static/89c422056d6ebe33d72e5aca23104ea1/50637/add-generic-xaml-step-2.png 630w,
+/static/89c422056d6ebe33d72e5aca23104ea1/4de97/add-generic-xaml-step-2.png 941w&quot;
+        sizes=&quot;(max-width: 630px) 100vw, 630px&quot;
+        style=&quot;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&quot;
+        loading=&quot;lazy&quot;
+        decoding=&quot;async&quot;
+      /&gt;
+    &lt;/span&gt;&lt;/p&gt;
+&lt;ol start=&quot;6&quot;&gt;
+&lt;li&gt;Now let&apos;s create our Custom Control class&lt;/li&gt;
+&lt;/ol&gt;
+&lt;pre class=&quot;grvsc-container default-dark&quot; data-language=&quot;csharp&quot; data-index=&quot;0&quot;&gt;&lt;code class=&quot;grvsc-code&quot;&gt;&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk15&quot;&gt;using&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;Windows&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk15&quot;&gt;using&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;Windows&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;Controls&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk4&quot;&gt;namespace&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;MyAppWithCustomControls&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;{&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;public&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;MyCustomControl&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; : &lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;Control&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;static&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;MyCustomControl&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;()&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;            &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;DefaultStyleKeyProperty&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;OverrideMetadata&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;typeof&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;MyCustomControl&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;),&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;FrameworkPropertyMetadata&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;typeof&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;MyCustomControl&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)));&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;and we need to define the Style for our new control&lt;/p&gt;
+&lt;pre class=&quot;grvsc-container default-dark&quot; data-language=&quot;xaml&quot; data-index=&quot;1&quot;&gt;&lt;code class=&quot;grvsc-code&quot;&gt;&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;ResourceDictionary&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;xmlns&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&amp;quot;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                    &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;xmlns:x&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;http://schemas.microsoft.com/winfx/2006/xaml&amp;quot;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                    &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;xmlns:local&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;clr-namespace:MyAppWithCustomControls&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;Style&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;TargetType&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;{x:Type local:MyCustomControl}&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        &lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;Setter&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;Property&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;Template&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;            &lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;Setter.Value&lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                &lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;ControlTemplate&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;TargetType&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;{x:Type local:MyCustomControl}&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                    &lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;StackPanel&lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                        &lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;Label&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;Content&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;MyLabel&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;/&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                        &lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;TextBox&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;/&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                    &lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;StackPanel&lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                &lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;ControlTemplate&lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;            &lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;Setter.Value&lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        &lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;Setter&lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;Style&lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;ResourceDictionary&lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;ol start=&quot;7&quot;&gt;
+&lt;li&gt;Just for testing purposes we can add our new control to &lt;code&gt;MainWindow.xaml&lt;/code&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;pre class=&quot;grvsc-container default-dark&quot; data-language=&quot;xaml&quot; data-index=&quot;2&quot;&gt;&lt;code class=&quot;grvsc-code&quot;&gt;&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;Window&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;x:Class&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;MyAppWithCustomControls.MainWindow&amp;quot;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;xmlns&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;http://schemas.microsoft.com/winfx/2006/xaml/presentation&amp;quot;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;xmlns:x&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;http://schemas.microsoft.com/winfx/2006/xaml&amp;quot;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;xmlns:d&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;http://schemas.microsoft.com/expression/blend/2008&amp;quot;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;xmlns:mc&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;http://schemas.openxmlformats.org/markup-compatibility/2006&amp;quot;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;xmlns:local&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;clr-namespace:MyAppWithCustomControls&amp;quot;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;mc:Ignorable&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;d&amp;quot;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;Title&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;My Custom Controls Test&amp;quot;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;Width&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;400&amp;quot;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;Height&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;250&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;Grid&lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        &lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;local:MyCustomControl&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;VerticalAlignment&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;Center&amp;quot;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                               &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;HorizontalAlignment&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;Center&amp;quot;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                               &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;MinWidth&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;200&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;/&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;Grid&lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;Window&lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;and after running the application we can see&lt;/p&gt;
+&lt;p&gt;&lt;span
+      class=&quot;gatsby-resp-image-wrapper&quot;
+      style=&quot;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 386px; &quot;
+    &gt;
+      &lt;span
+    class=&quot;gatsby-resp-image-background-image&quot;
+    style=&quot;padding-bottom: 62.65822784810127%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAANCAYAAACpUE5eAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAw0lEQVR42q2SfQuEIAzG/f6f8aC/UipNk15QL3dsXEekxkUJD88U/Lm5sVdVgeAcOOdQ1zUIIci3vdY6kVKKvOs6aNuWYvSmaYBpY8BaC8MwkB/jZVmKmqYJxnGkeJ5n6PseGDywYozk+ADbDu4qC0zgFx5LgHvf1XJa5vFeNkP8WOywVOo0wxw4CzTG0OhIKcH7AN77rJxzSYbY8aTkEN4Ur2v8Xg5ZOefPgaUy/hmZIvDu2PyATy1qSgjlj78i5GBDP3PK/sfxiQw9AAAAAElFTkSuQmCC&apos;); background-size: cover; display: block;&quot;
+  &gt;&lt;/span&gt;
+  &lt;img
+        class=&quot;gatsby-resp-image-image&quot;
+        alt=&quot;Preview&quot;
+        title=&quot;&quot;
+        src=&quot;/static/da5c19ce0d4374a696f21d6669895f6a/3dc64/preview.png&quot;
+        srcset=&quot;/static/da5c19ce0d4374a696f21d6669895f6a/dda05/preview.png 158w,
+/static/da5c19ce0d4374a696f21d6669895f6a/679a3/preview.png 315w,
+/static/da5c19ce0d4374a696f21d6669895f6a/3dc64/preview.png 386w&quot;
+        sizes=&quot;(max-width: 386px) 100vw, 386px&quot;
+        style=&quot;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&quot;
+        loading=&quot;lazy&quot;
+        decoding=&quot;async&quot;
+      /&gt;
+    &lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;Now, admittedly this doesn&apos;t do much... To make the control more reusable we need to expose properties that will allow us to change the Label and the TextBox value.&lt;/p&gt;
+&lt;ol start=&quot;8&quot;&gt;
+&lt;li&gt;Adding Dependency Properties&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;In order to allow the consumers of the custom control to change the the Label and the TextBox value we can expose Dependency Properties. &lt;a href=&quot;https://learn.microsoft.com/en-us/dotnet/desktop/wpf/properties/dependency-properties-overview?view=netdesktop-7.0&quot;&gt;DependencyProperty&lt;/a&gt; is a special class in WPF which, among other things, enables data binding and animations/storyboards.&lt;/p&gt;
+&lt;pre class=&quot;grvsc-container default-dark&quot; data-language=&quot;csharp&quot; data-index=&quot;3&quot;&gt;&lt;code class=&quot;grvsc-code&quot;&gt;&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk4&quot;&gt;public&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;MyCustomControl&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; : &lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;Control&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;{&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk3&quot;&gt;// ... constructor&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk4&quot;&gt;    #region &lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;Label&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;public&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;Label&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; { &lt;/span&gt;&lt;span class=&quot;mtk15&quot;&gt;return&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; (&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;GetValue&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;LabelProperty&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;); }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; { &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;SetValue&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;LabelProperty&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;, &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;); }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;public&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;static&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;readonly&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;DependencyProperty&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;LabelProperty&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; =&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;DependencyProperty&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;Register&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;            &lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;Label&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;,&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;            &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;typeof&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;),&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;            &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;typeof&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;MyCustomControl&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;),&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;            &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;PropertyMetadata&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;Label&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;));&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk4&quot;&gt;    #endregion &lt;/span&gt;&lt;span class=&quot;mtk3&quot;&gt;// Label&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk4&quot;&gt;    #region &lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;Value&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;public&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;Value&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; { &lt;/span&gt;&lt;span class=&quot;mtk15&quot;&gt;return&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; (&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;GetValue&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;ValueProperty&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;); }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; { &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;SetValue&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;ValueProperty&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;, &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;); }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;public&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;static&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;readonly&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;DependencyProperty&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;ValueProperty&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; =&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;DependencyProperty&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;Register&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;            &lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;Value&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;,&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;            &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;typeof&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;),&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;            &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;typeof&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;MyCustomControl&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;),&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;            &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;);&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk4&quot;&gt;    #endregion &lt;/span&gt;&lt;span class=&quot;mtk3&quot;&gt;// Value&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;ol start=&quot;9&quot;&gt;
+&lt;li&gt;Now we can update our MainWindow.xaml and apply custom values&lt;/li&gt;
+&lt;/ol&gt;
+&lt;pre class=&quot;grvsc-container default-dark&quot; data-language=&quot;xaml&quot; data-index=&quot;4&quot;&gt;&lt;code class=&quot;grvsc-code&quot;&gt;&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk17&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;local:MyCustomControl&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;VerticalAlignment&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;Center&amp;quot;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                        &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;HorizontalAlignment&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;Center&amp;quot;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                        &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;MinWidth&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;200&amp;quot;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                        &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;Label&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;Price&amp;quot;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                        &lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;Value&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;123.0&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk17&quot;&gt;/&amp;gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;span
+      class=&quot;gatsby-resp-image-wrapper&quot;
+      style=&quot;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 630px; &quot;
+    &gt;
+      &lt;span
+    class=&quot;gatsby-resp-image-background-image&quot;
+    style=&quot;padding-bottom: 56.32911392405063%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/jpeg;base64,/9j/2wBDABALDA4MChAODQ4SERATGCgaGBYWGDEjJR0oOjM9PDkzODdASFxOQERXRTc4UG1RV19iZ2hnPk1xeXBkeFxlZ2P/2wBDARESEhgVGC8aGi9jQjhCY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2P/wgARCAALABQDASIAAhEBAxEB/8QAGAAAAgMAAAAAAAAAAAAAAAAAAAMBBAX/xAAWAQEBAQAAAAAAAAAAAAAAAAADAQL/2gAMAwEAAhADEAAAAdVtWFB4kmf/xAAYEAADAQEAAAAAAAAAAAAAAAAAARECEv/aAAgBAQABBQLOEcKDKVn/xAAXEQEAAwAAAAAAAAAAAAAAAAAAESFR/9oACAEDAQE/AaxD/8QAFhEBAQEAAAAAAAAAAAAAAAAAAQAS/9oACAECAQE/AUWy3//EABQQAQAAAAAAAAAAAAAAAAAAACD/2gAIAQEABj8CX//EABoQAQEAAgMAAAAAAAAAAAAAAAEAESExUWH/2gAIAQEAAT8hSyGmbFyhdt6X/9oADAMBAAIAAwAAABAMz//EABYRAQEBAAAAAAAAAAAAAAAAAAEREP/aAAgBAwEBPxAkmH//xAAWEQADAAAAAAAAAAAAAAAAAAAQESH/2gAIAQIBAT8QqMH/xAAaEAEAAwEBAQAAAAAAAAAAAAABABEhYUHh/9oACAEBAAE/EKwq5dDEzoHsXeRJYUeM+mnZP//Z&apos;); background-size: cover; display: block;&quot;
+  &gt;&lt;/span&gt;
+  &lt;img
+        class=&quot;gatsby-resp-image-image&quot;
+        alt=&quot;Custom Control&quot;
+        title=&quot;&quot;
+        src=&quot;/static/1e09daa4cffb2f6dfd42b1c640bea958/83b6b/final.jpg&quot;
+        srcset=&quot;/static/1e09daa4cffb2f6dfd42b1c640bea958/ebfe4/final.jpg 158w,
+/static/1e09daa4cffb2f6dfd42b1c640bea958/4fcc2/final.jpg 315w,
+/static/1e09daa4cffb2f6dfd42b1c640bea958/83b6b/final.jpg 630w,
+/static/1e09daa4cffb2f6dfd42b1c640bea958/5fd6b/final.jpg 800w&quot;
+        sizes=&quot;(max-width: 630px) 100vw, 630px&quot;
+        style=&quot;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&quot;
+        loading=&quot;lazy&quot;
+        decoding=&quot;async&quot;
+      /&gt;
+    &lt;/span&gt;&lt;/p&gt;
+&lt;h2&gt;Conclusion&lt;/h2&gt;
+&lt;p&gt;In few simple steps we were able to create a Custom WPF Control that can be easily reused and restyles. In a future tutorial we will look into creating a WPF Control Library and using it in an application.&lt;/p&gt;
+&lt;style class=&quot;grvsc-styles&quot;&gt;
+  .grvsc-container {
+    overflow: auto;
+    position: relative;
+    -webkit-overflow-scrolling: touch;
+    padding-top: 1rem;
+    padding-top: var(--grvsc-padding-top, var(--grvsc-padding-v, 1rem));
+    padding-bottom: 1rem;
+    padding-bottom: var(--grvsc-padding-bottom, var(--grvsc-padding-v, 1rem));
+    border-radius: 8px;
+    border-radius: var(--grvsc-border-radius, 8px);
+    font-feature-settings: normal;
+    line-height: 1.4;
+  }
+  
+  .grvsc-code {
+    display: table;
+  }
+  
+  .grvsc-line {
+    display: table-row;
+    box-sizing: border-box;
+    width: 100%;
+    position: relative;
+  }
+  
+  .grvsc-line &gt; * {
+    position: relative;
+  }
+  
+  .grvsc-gutter-pad {
+    display: table-cell;
+    padding-left: 0.75rem;
+    padding-left: calc(var(--grvsc-padding-left, var(--grvsc-padding-h, 1.5rem)) / 2);
+  }
+  
+  .grvsc-gutter {
+    display: table-cell;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+  }
+  
+  .grvsc-gutter::before {
+    content: attr(data-content);
+  }
+  
+  .grvsc-source {
+    display: table-cell;
+    padding-left: 1.5rem;
+    padding-left: var(--grvsc-padding-left, var(--grvsc-padding-h, 1.5rem));
+    padding-right: 1.5rem;
+    padding-right: var(--grvsc-padding-right, var(--grvsc-padding-h, 1.5rem));
+  }
+  
+  .grvsc-source:empty::after {
+    content: &apos; &apos;;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+  }
+  
+  .grvsc-gutter + .grvsc-source {
+    padding-left: 0.75rem;
+    padding-left: calc(var(--grvsc-padding-left, var(--grvsc-padding-h, 1.5rem)) / 2);
+  }
+  
+  /* Line transformer styles */
+  
+  .grvsc-has-line-highlighting &gt; .grvsc-code &gt; .grvsc-line::before {
+    content: &apos; &apos;;
+    position: absolute;
+    width: 100%;
+  }
+  
+  .grvsc-line-diff-add::before {
+    background-color: var(--grvsc-line-diff-add-background-color, rgba(0, 255, 60, 0.2));
+  }
+  
+  .grvsc-line-diff-del::before {
+    background-color: var(--grvsc-line-diff-del-background-color, rgba(255, 0, 20, 0.2));
+  }
+  
+  .grvsc-line-number {
+    padding: 0 2px;
+    text-align: right;
+    opacity: 0.7;
+  }
+  
+  .default-dark {
+    background-color: #1E1E1E;
+    color: #D4D4D4;
+  }
+  .default-dark .mtk15 { color: #C586C0; }
+  .default-dark .mtk1 { color: #D4D4D4; }
+  .default-dark .mtk10 { color: #4EC9B0; }
+  .default-dark .mtk4 { color: #569CD6; }
+  .default-dark .mtk11 { color: #DCDCAA; }
+  .default-dark .mtk12 { color: #9CDCFE; }
+  .default-dark .mtk17 { color: #808080; }
+  .default-dark .mtk8 { color: #CE9178; }
+  .default-dark .mtk3 { color: #6A9955; }
+  .default-dark .grvsc-line-highlighted::before {
+    background-color: var(--grvsc-line-highlighted-background-color, rgba(255, 255, 255, 0.1));
+    box-shadow: inset var(--grvsc-line-highlighted-border-width, 4px) 0 0 0 var(--grvsc-line-highlighted-border-color, rgba(255, 255, 255, 0.5));
+  }
+&lt;/style&gt;</content:encoded></item><item><title><![CDATA[New Beginnings]]></title><description><![CDATA[Welcome to my new blog! I'm excited to share my thoughts, experiences, and knowledge here. This isn't my first attempt at starting a blog…]]></description><link>https://nikz.dev/new-beginnings/</link><guid isPermaLink="false">https://nikz.dev/new-beginnings/</guid><pubDate>Mon, 30 Jan 2023 20:00:00 GMT</pubDate><content:encoded>&lt;p&gt;Welcome to my new blog! I&apos;m excited to share my thoughts, experiences, and knowledge here. This isn&apos;t my first attempt at starting a blog, but I&apos;m determined to make it a success this time around.&lt;/p&gt;
+&lt;p&gt;In the past, I&apos;ve struggled with consistency and keeping up with the demands of blogging. But after some reflection and learning from my mistakes, I&apos;ve come to realize that the key to success is to set realistic goals and to be consistent with posting. Blogging is not easy and I admire the people that can find the time and put the effort to produce quality content.&lt;/p&gt;
+&lt;p&gt;My goal for this blog is to share my insights, tips on software engineering and things I&apos;ve learnt or I&apos;m currently learning. I&apos;ll be covering topics such as software engineering, machine learning, software architecture, development tools, best practices... and occasionally photography, travelling and scuba diving.&lt;/p&gt;
+&lt;p&gt;I hope that this blog will be a valuable resource for developers of all skill levels, from beginners to experts. I&apos;m looking forward to engaging with my readers and hearing your thoughts and feedback. So, let&apos;s get started on this exciting journey together!&lt;/p&gt;
+&lt;style class=&quot;grvsc-styles&quot;&gt;
+  .grvsc-container {
+    overflow: auto;
+    position: relative;
+    -webkit-overflow-scrolling: touch;
+    padding-top: 1rem;
+    padding-top: var(--grvsc-padding-top, var(--grvsc-padding-v, 1rem));
+    padding-bottom: 1rem;
+    padding-bottom: var(--grvsc-padding-bottom, var(--grvsc-padding-v, 1rem));
+    border-radius: 8px;
+    border-radius: var(--grvsc-border-radius, 8px);
+    font-feature-settings: normal;
+    line-height: 1.4;
+  }
+  
+  .grvsc-code {
+    display: table;
+  }
+  
+  .grvsc-line {
+    display: table-row;
+    box-sizing: border-box;
+    width: 100%;
+    position: relative;
+  }
+  
+  .grvsc-line &gt; * {
+    position: relative;
+  }
+  
+  .grvsc-gutter-pad {
+    display: table-cell;
+    padding-left: 0.75rem;
+    padding-left: calc(var(--grvsc-padding-left, var(--grvsc-padding-h, 1.5rem)) / 2);
+  }
+  
+  .grvsc-gutter {
+    display: table-cell;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+  }
+  
+  .grvsc-gutter::before {
+    content: attr(data-content);
+  }
+  
+  .grvsc-source {
+    display: table-cell;
+    padding-left: 1.5rem;
+    padding-left: var(--grvsc-padding-left, var(--grvsc-padding-h, 1.5rem));
+    padding-right: 1.5rem;
+    padding-right: var(--grvsc-padding-right, var(--grvsc-padding-h, 1.5rem));
+  }
+  
+  .grvsc-source:empty::after {
+    content: &apos; &apos;;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+  }
+  
+  .grvsc-gutter + .grvsc-source {
+    padding-left: 0.75rem;
+    padding-left: calc(var(--grvsc-padding-left, var(--grvsc-padding-h, 1.5rem)) / 2);
+  }
+  
+  /* Line transformer styles */
+  
+  .grvsc-has-line-highlighting &gt; .grvsc-code &gt; .grvsc-line::before {
+    content: &apos; &apos;;
+    position: absolute;
+    width: 100%;
+  }
+  
+  .grvsc-line-diff-add::before {
+    background-color: var(--grvsc-line-diff-add-background-color, rgba(0, 255, 60, 0.2));
+  }
+  
+  .grvsc-line-diff-del::before {
+    background-color: var(--grvsc-line-diff-del-background-color, rgba(255, 0, 20, 0.2));
+  }
+  
+  .grvsc-line-number {
+    padding: 0 2px;
+    text-align: right;
+    opacity: 0.7;
+  }
+  
+&lt;/style&gt;</content:encoded></item></channel></rss>

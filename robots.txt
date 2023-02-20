@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Sitemap: https://nikz.dev/sitemap-index.xml
+Host: https://nikz.dev
