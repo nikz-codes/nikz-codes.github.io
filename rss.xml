@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[NikZ.dev Blog]]></title><description><![CDATA[NikZ.dev Blog]]></description><link>https://nikz.dev</link><generator>GatsbyJS</generator><lastBuildDate>Mon, 20 Feb 2023 19:29:42 GMT</lastBuildDate><item><title><![CDATA[Nitrox Calculator using SwiftUI (Part 1)]]></title><description><![CDATA[This is Part 1 of a multi-part series on creating a simple iOS application for scuba divers that calculates Maximum Operating Depth (MOD) of…]]></description><link>https://nikz.dev/nitrox-calculator-using-swiftui-part1/</link><guid isPermaLink="false">https://nikz.dev/nitrox-calculator-using-swiftui-part1/</guid><pubDate>Sun, 19 Feb 2023 08:00:00 GMT</pubDate><content:encoded>&lt;p&gt;This is Part 1 of a multi-part series on creating a simple iOS application for scuba divers that calculates Maximum Operating Depth (MOD) of a Nitrox gas mix&lt;/p&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[NikZ.dev Blog]]></title><description><![CDATA[NikZ.dev Blog]]></description><link>https://nikz.dev</link><generator>GatsbyJS</generator><lastBuildDate>Wed, 22 Feb 2023 21:01:53 GMT</lastBuildDate><item><title><![CDATA[Nitrox Calculator using SwiftUI (Part 1)]]></title><description><![CDATA[This is Part 1 of a multi-part series on creating a simple iOS application for scuba divers that calculates the Maximum Operating Depth (MOD…]]></description><link>https://nikz.dev/nitrox-calculator-using-swiftui-part1/</link><guid isPermaLink="false">https://nikz.dev/nitrox-calculator-using-swiftui-part1/</guid><pubDate>Sun, 19 Feb 2023 08:00:00 GMT</pubDate><content:encoded>&lt;p&gt;This is Part 1 of a multi-part series on creating a simple iOS application for scuba divers that calculates the Maximum Operating Depth (MOD) of a Nitrox gas mix&lt;/p&gt;
 &lt;h2&gt;Background&lt;/h2&gt;
 &lt;p&gt;Before we dive into the implementation details, let&apos;s have a look at what we are going to build and why it can be useful.&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Enriched Air Nitrox (EAN)&lt;/strong&gt;, commonly referred to as just &lt;strong&gt;Nitrox&lt;/strong&gt; is a gas mixture of &lt;strong&gt;oxygen&lt;/strong&gt;, &lt;strong&gt;nitrogen&lt;/strong&gt; and minimal amount of &lt;strong&gt;other gasses&lt;/strong&gt;. The normal &lt;strong&gt;Air&lt;/strong&gt; that we breathe consists of 21% oxygen, 78% nitrogen and 1% other gasses. EAN, as the name implies, is usually a mix enriched with more oxygen. It&apos;s widely used in recreational and technical diving because the reduced amount nitrogen allows longer bottom time and reduced narcotic effects of the nitrogen at depth. However, like everything else in life, this doesn&apos;t come for free and without risks - beyond certain depths the oxygen in the mix can become toxic and affect the nervous system of the diver and even cause death.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Enriched Air Nitrox (EAN)&lt;/strong&gt;, commonly referred to as just &lt;strong&gt;Nitrox&lt;/strong&gt; is a gas mixture of &lt;strong&gt;oxygen&lt;/strong&gt;, &lt;strong&gt;nitrogen&lt;/strong&gt; and a minimal amount of &lt;strong&gt;other gasses&lt;/strong&gt;. The normal &lt;strong&gt;Air&lt;/strong&gt; that we breathe consists of 21% oxygen, 78% nitrogen, and 1% other gasses. EAN, as the name implies, is usually a mix enriched with more oxygen. It&apos;s widely used in recreational and technical diving because the reduced amount of nitrogen allows longer bottom time and reduced narcotic effects of the nitrogen at depth. However, like everything else in life, this doesn&apos;t come for free and without risks - beyond certain depths, the oxygen in the mix can become toxic and affect the nervous system of the diver and even cause death.&lt;/p&gt;
 &lt;p&gt;That&apos;s why it&apos;s very important the gas to be properly analyzed and the Max Operating Depth (MOD) to be calculated and marked on the cylinder.&lt;/p&gt;
 &lt;h2&gt;Requirements&lt;/h2&gt;
 &lt;p&gt;The basic requirements for this calculator are:&lt;/p&gt;
@@ -12,13 +12,13 @@
 &lt;li&gt;Allow selection of metric or imperial measurement units from a settings screen&lt;/li&gt;
 &lt;li&gt;Remember the user settings between sessions&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;along the way we might add more requirements and enhancements, but for an MVP version these should be enough for us to get started.&lt;/p&gt;
+&lt;p&gt;along the way, we might add more requirements and enhancements, but for an MVP version these should be enough for us to get started.&lt;/p&gt;
 &lt;h2&gt;Concept&lt;/h2&gt;
-&lt;p&gt;It&apos;s always a good to have a basic idea of what the application will look like before you start building it, even if it&apos;s few boxes drawn on a napkin.&lt;/p&gt;
+&lt;p&gt;It&apos;s always good to have a basic idea of what the application will look like before you start building it, even if it&apos;s a few boxes drawn on a napkin.&lt;/p&gt;
 &lt;p&gt;What we have here is:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Two tabs - MOD calculator and Settings screen&lt;/li&gt;
-&lt;li&gt;Basic text description of what we are actually calculating&lt;/li&gt;
+&lt;li&gt;Basic text description of what we are calculating&lt;/li&gt;
 &lt;li&gt;Slider that changes the oxygen percentage&lt;/li&gt;
 &lt;li&gt;ppO₂ selector&lt;/li&gt;
 &lt;li&gt;Updating text for EAN mixture and the calculated MOD&lt;/li&gt;
@@ -46,7 +46,7 @@
       /&gt;
     &lt;/span&gt;&lt;/p&gt;
 &lt;h2&gt;Project Setup&lt;/h2&gt;
-&lt;p&gt;At the time of writing the latest version MacOS is Ventura 13.1, I&apos;m using Xcode 14.2 and targeting iOS 16.2. However, given the simplicity of the app it should be possible to target even older versions.&lt;/p&gt;
+&lt;p&gt;At the time of writing the latest version of MacOS is Ventura 13.1, I&apos;m using Xcode 14.2 and targeting iOS 16.2. However, given the simplicity of the app, it should be possible to target even older versions.&lt;/p&gt;
 &lt;p&gt;Let&apos;s start with creating a new project.&lt;/p&gt;
 &lt;p&gt;Fire up Xocde and select &quot;Create a new Xcode project&quot;&lt;/p&gt;
 &lt;p&gt;&lt;span
@@ -95,7 +95,7 @@
         decoding=&quot;async&quot;
       /&gt;
     &lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;for Product Name we can set &lt;strong&gt;NitroxCalculator&lt;/strong&gt; and for Organization Identifier &lt;strong&gt;com.example.dev.nikz&lt;/strong&gt; but you can switch to whatever you want. The rest of the options remain with the default values&lt;/p&gt;
+&lt;p&gt;for Product Name, we can set &lt;strong&gt;NitroxCalculator&lt;/strong&gt; and for Organization Identifier &lt;strong&gt;com.example.dev.nikz&lt;/strong&gt; but you can switch to whatever you want. The rest of the options remain with the default values&lt;/p&gt;
 &lt;p&gt;&lt;span
       class=&quot;gatsby-resp-image-wrapper&quot;
       style=&quot;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 630px; &quot;
@@ -119,7 +119,7 @@
         decoding=&quot;async&quot;
       /&gt;
     &lt;/span&gt;&lt;/p&gt;
-&lt;p&gt;Now let&apos;s define the Display Name and change few more settings:&lt;/p&gt;
+&lt;p&gt;Now let&apos;s define the Display Name and change a few more settings:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Select the project and go to the General tab of the &lt;code&gt;NitroxCalculator&lt;/code&gt; target&lt;/li&gt;
 &lt;li&gt;Change Display Name to &lt;strong&gt;Nitrox Calculator&lt;/strong&gt;&lt;/li&gt;
@@ -152,7 +152,7 @@
     &lt;/span&gt;&lt;/p&gt;
 &lt;h2&gt;TabView&lt;/h2&gt;
 &lt;p&gt;Now we can define the basic &lt;a href=&quot;https://developer.apple.com/documentation/swiftui/tabview&quot;&gt;TabView&lt;/a&gt; structure.&lt;/p&gt;
-&lt;p&gt;For a start it will be just a placeholder Text and tab icons using &lt;a href=&quot;https://developer.apple.com/documentation/swiftui/label&quot;&gt;Label&lt;/a&gt; with &lt;code&gt;systemImage&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;For a start, it will be just a placeholder Text and tab icons using &lt;a href=&quot;https://developer.apple.com/documentation/swiftui/label&quot;&gt;Label&lt;/a&gt; with &lt;code&gt;systemImage&lt;/code&gt;.&lt;/p&gt;
 &lt;pre class=&quot;grvsc-container default-dark&quot; data-language=&quot;swift&quot; data-index=&quot;0&quot;&gt;&lt;code class=&quot;grvsc-code&quot;&gt;&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk4&quot;&gt;struct&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;ContentView&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;: View {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
 &lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;var&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; body: some View {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
 &lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        TabView {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
@@ -169,7 +169,7 @@
 &lt;h2&gt;Result&lt;/h2&gt;
 &lt;img src=&quot;/7c275e8be83b96b3e36b475bf84c50c8/result.gif&quot; alt=&quot;Result&quot; class=&quot;gif&quot;&gt;
 &lt;h2&gt;Next&lt;/h2&gt;
-&lt;p&gt;Next we will implement the settings screen and the basic structure of the MOD calculator screen...&lt;/p&gt;
+&lt;p&gt;Next, we will implement the settings screen and the basic structure of the MOD calculator screen...&lt;/p&gt;
 &lt;style class=&quot;grvsc-styles&quot;&gt;
   .grvsc-container {
     overflow: auto;
