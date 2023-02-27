@@ -1,4 +1,317 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[NikZ.dev Blog]]></title><description><![CDATA[NikZ.dev Blog]]></description><link>https://nikz.dev</link><generator>GatsbyJS</generator><lastBuildDate>Wed, 22 Feb 2023 21:01:53 GMT</lastBuildDate><item><title><![CDATA[Nitrox Calculator using SwiftUI (Part 1)]]></title><description><![CDATA[This is Part 1 of a multi-part series on creating a simple iOS application for scuba divers that calculates the Maximum Operating Depth (MOD…]]></description><link>https://nikz.dev/nitrox-calculator-using-swiftui-part1/</link><guid isPermaLink="false">https://nikz.dev/nitrox-calculator-using-swiftui-part1/</guid><pubDate>Sun, 19 Feb 2023 08:00:00 GMT</pubDate><content:encoded>&lt;p&gt;This is Part 1 of a multi-part series on creating a simple iOS application for scuba divers that calculates the Maximum Operating Depth (MOD) of a Nitrox gas mix&lt;/p&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[NikZ.dev Blog]]></title><description><![CDATA[NikZ.dev Blog]]></description><link>https://nikz.dev</link><generator>GatsbyJS</generator><lastBuildDate>Mon, 27 Feb 2023 20:17:50 GMT</lastBuildDate><item><title><![CDATA[Nitrox Calculator using SwiftUI (Part 2)]]></title><description><![CDATA[In Part 1 we setup the project and the main application layout with a TabView control. Now we are moving to the Settings screen and the…]]></description><link>https://nikz.dev/nitrox-calculator-using-swiftui-part2/</link><guid isPermaLink="false">https://nikz.dev/nitrox-calculator-using-swiftui-part2/</guid><pubDate>Mon, 27 Feb 2023 20:00:00 GMT</pubDate><content:encoded>&lt;p&gt;In &lt;a href=&quot;/nitrox-calculator-using-swiftui-part1&quot;&gt;Part 1&lt;/a&gt; we setup the project and the main application layout with a TabView control. Now we are moving to the Settings screen and the Maximum Operating Depth (MOD) Calculator screen&lt;/p&gt;
+&lt;h2&gt;Views and Models&lt;/h2&gt;
+&lt;p&gt;Let&apos;s start by creating views for the two tabs - &lt;strong&gt;MODCalculatorView&lt;/strong&gt; and &lt;strong&gt;SettingsView&lt;/strong&gt;. Select &lt;strong&gt;New File...&lt;/strong&gt; and pick &lt;strong&gt;SwiftUI View&lt;/strong&gt;. We&apos;ll also need a regular &lt;strong&gt;Swift File&lt;/strong&gt; for our &lt;strong&gt;Model&lt;/strong&gt; where we&apos;ll define a few types for the application settings.&lt;/p&gt;
+&lt;p&gt;&lt;span
+      class=&quot;gatsby-resp-image-wrapper&quot;
+      style=&quot;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 415px; &quot;
+    &gt;
+      &lt;span
+    class=&quot;gatsby-resp-image-background-image&quot;
+    style=&quot;padding-bottom: 73.41772151898735%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAPCAYAAADkmO9VAAAACXBIWXMAAAsTAAALEwEAmpwYAAADaklEQVR42mWTyXIbVRSG9Sos8CD3fIfuvq0eNbTULUsttSSLGMexjRMMxQIcAglUCJUVG5bsmAqqKKpY8CK8Ak+SPj+lNklRxeKr//6b756zOJ2ZDOgk9ykqfRJcUtJLSdiSuCXafI1jMBplOSkZUBwktFlu6ebhB/TexUO6vH9F1xfXdH563nSGTNJx7EL1Jbgj0PNCMJPD1p02X7PrcZBAOi5c7iMNB5gMC0RBiigcIYrH6AUD6ujhOQkeQvEeRSohyTySjkfK7bX0vJBCFZOSPfK433ZuMGIao/23Duhw3yFZ3lCx+RDzq+fUETwkKSMo6ZMSHpRwEci7FDZrkTYDN214TEBaNnQzheeN0RMKSkSI0znF8RRROqNOf3xK40ff4fzqUzq//AT3zj7C5fVjrLfvI+nXSIdrZKMN0v4K0/kDDPtTHGo+mEihZABfhvCYR7bOYGk2dS4++4Ne/vg3vv35L6rvv8TpxVdYn32J7YMXODl/gaJ+gnzxGHl1i/HiFunwFEbXgb5D5zjSHRxpDmkGg2Zw6hyXNVWzDYrxnOIgx6zYIO/PMR5UmE+3UO4IkmUtwo7ArB64FcLRXJiGgG5y+EFGQTRAEA2os5zXVM9rTCfH1I8nqKtTFKMFlrN3sPvAZQmU7EPJDD5PIe0QjuHBOhJ3QoOhq9l0pNnQDEad9WJDm+UJqumCEtVHMZihH+bI0xJZOEKsBi2u3YNrBxCWgqO7sI44rH8nZFyR8CIwEdwJT+ot5uWC+r0hqskSk6zEolyhKmosp+v2vcvQTcBN/07Y5dA0hre7BvYOddo/NLB3oP9XWNEoyXF2ch+r2Qbl8Bh5MsY4KzBqs0QgIgjTB9NdcGuXAhEL4Vo+STeAr6L/r3ycL1AOZ4i8DJ4dwHd68FnYongE1wnBTQVhB2CGRCYSKFuR54dQKn4zIe0mHIYprcoZzUcFLScl3auW9O5yRUWSkW865FuMpG4R6+pk7nfba4lYSCELyfQiOPGoFWJTb1GVM8T5DUbrrzFePUc4/QJq8gyqeAZ/8hTe+Cnc/HOI4ROw/i3s9GMYVtLeeOENESYTqKJuha829bapimkT19805c2fzfTR70189lvDVr80fP3rG3bdWf7UmNUPjTn/vuk6k2Zv/6DZO9Ab2/KaUTZ/9Q9wHBhtaIE/bgAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;
+  &gt;&lt;/span&gt;
+  &lt;img
+        class=&quot;gatsby-resp-image-image&quot;
+        alt=&quot;New File&quot;
+        title=&quot;&quot;
+        src=&quot;/static/b09edfa8240269c788cd6ff62e6189f5/554fc/new-file.png&quot;
+        srcset=&quot;/static/b09edfa8240269c788cd6ff62e6189f5/dda05/new-file.png 158w,
+/static/b09edfa8240269c788cd6ff62e6189f5/679a3/new-file.png 315w,
+/static/b09edfa8240269c788cd6ff62e6189f5/554fc/new-file.png 415w&quot;
+        sizes=&quot;(max-width: 415px) 100vw, 415px&quot;
+        style=&quot;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&quot;
+        loading=&quot;lazy&quot;
+        decoding=&quot;async&quot;
+      /&gt;
+    &lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;&lt;span
+      class=&quot;gatsby-resp-image-wrapper&quot;
+      style=&quot;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 630px; &quot;
+    &gt;
+      &lt;span
+    class=&quot;gatsby-resp-image-background-image&quot;
+    style=&quot;padding-bottom: 70.25316455696203%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAOCAYAAAAvxDzwAAAACXBIWXMAABYlAAAWJQFJUiTwAAAC4ElEQVR42lWS62/bVBjG/XfQRGviW+LrsePcbMdOXKdpm46urEOgDQqbxAAVNBAT0yqmFVbBKBpsQlR8QRr8oT90Tkg1Pjw673Oe57w3W8uGM6rpDnVRUU0qZtmUKp+RJSmxGxE5AtENFcJuoCAcGYdKj72YaO3rhGhJUpIVu/TCmEQkpIMU4QkiPyIf5SSih2d5+B1f3Uus+SgZMuwNcW0H4a0KaF7bYbecc7h4G7ft4rYc6nzOdrHAaXXx2h6Las40K1Ts6z57ix3yQYrbcvENj3d2jkhFqmLNbFp89O5tXr94QVd3MRsGn9094YfvfsK+ZmFt2Dx8/ICvH51gNWzsZoez56fc/eTDFW/Z/PHja24fHmM2DbTA9On7ffIkJ7RDAisg7+eUo4LYifEMjyzOmfQLfNNXnnIwpRiUShtHY2bjqXoj/Zqne2RJzryYK4PTdtguFyzrJa7uqruD3QP26j2kVyY92r/JdjlXuugIVWQNzWyaHL9/zOXvlyqZ3mjz4P43XDx9iXXNRN/Q+f70nCffnmE0dKT/12e/cXLvC6XJJLKIhJxOkx0Uw0J1JKvJqrL9Oq9VdxKz8Yx6UitNPtqt9qiyrSu+XpVKGHUEPSdGnonbI7RC3LZDd7N7NYbTctQfsOZSk+Mrbq102aGQI8uPspXvsL99k9hJlLEYTCiHBb7hK0xHBXkvveJbWcVIjFQcWgHzvKLvJchcmtE0+fjWHf56foG96aC/ZfDwyxNeXTzDaNroGwbnT045e/wIo2FgNm0uX/7MV5/fR98w6Ww6/P3nL3xw6wizYaN5lkAcnDO+9w/d/hF+26LKa5bz5WrctsMsnVFlldqZxGK6YDqeKi12Y/bnS6p0tupQdCKC3j5ucoPAmxCaHlE3UhBvLPtNyELCFmpcuX/R7dHzBohOjCZ39d71G1yvaoTpERgBgeFfITSC/+D/78zijGpcMohKrPopweErrPRT/gUJPNCQNjt6KQAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;
+  &gt;&lt;/span&gt;
+  &lt;img
+        class=&quot;gatsby-resp-image-image&quot;
+        alt=&quot;Create File&quot;
+        title=&quot;&quot;
+        src=&quot;/static/a95c2cec92a814224c15fc4f6c6ed7d9/50637/create-view.png&quot;
+        srcset=&quot;/static/a95c2cec92a814224c15fc4f6c6ed7d9/dda05/create-view.png 158w,
+/static/a95c2cec92a814224c15fc4f6c6ed7d9/679a3/create-view.png 315w,
+/static/a95c2cec92a814224c15fc4f6c6ed7d9/50637/create-view.png 630w,
+/static/a95c2cec92a814224c15fc4f6c6ed7d9/fddb0/create-view.png 945w,
+/static/a95c2cec92a814224c15fc4f6c6ed7d9/f46b1/create-view.png 1260w,
+/static/a95c2cec92a814224c15fc4f6c6ed7d9/4a734/create-view.png 1430w&quot;
+        sizes=&quot;(max-width: 630px) 100vw, 630px&quot;
+        style=&quot;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&quot;
+        loading=&quot;lazy&quot;
+        decoding=&quot;async&quot;
+      /&gt;
+    &lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;Now we can replace the placeholders in &lt;strong&gt;ContentView&lt;/strong&gt; with the new views that we just created:&lt;/p&gt;
+&lt;pre class=&quot;grvsc-container default-dark&quot; data-language=&quot;swift&quot; data-index=&quot;0&quot;&gt;&lt;code class=&quot;grvsc-code&quot;&gt;&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk4&quot;&gt;struct&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;ContentView&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;: View {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;var&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; body: some View {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        TabView {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;            &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;MODCalculatorView&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;tabItem&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;Label&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;MOD&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;, &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;systemImage&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;: &lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;gauge&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;            }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;            &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;SettingsView&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;tabItem&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;Label&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;Settings&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;, &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;systemImage&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;: &lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;gear&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;            }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;Model&lt;/h2&gt;
+&lt;p&gt;We have a requirement that the app should support both Metric and Imperial measures. In &lt;code&gt;Model.swift&lt;/code&gt; we will define a simple &lt;code&gt;enum&lt;/code&gt; for &lt;code&gt;Unit&lt;/code&gt;:&lt;/p&gt;
+&lt;pre class=&quot;grvsc-container default-dark&quot; data-language=&quot;swift&quot; data-index=&quot;1&quot;&gt;&lt;code class=&quot;grvsc-code&quot;&gt;&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk4&quot;&gt;enum&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;Unit&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;: String, CaseIterable, Identifiable {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk15&quot;&gt;case&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; metric = &lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;Metric&amp;quot;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk15&quot;&gt;case&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; imperial = &lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;Imperial&amp;quot;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;var&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; id: &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;Self&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; { &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We explicitly have it defined as &lt;code&gt;String&lt;/code&gt; and &lt;a href=&quot;https://developer.apple.com/documentation/swift/caseiterable&quot;&gt;&lt;code&gt;CaseIterable&lt;/code&gt;&lt;/a&gt; which will allow us to easily integrate it into a &lt;a href=&quot;https://developer.apple.com/documentation/swiftui/picker&quot;&gt;&lt;code&gt;Picker&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;h2&gt;Settings View&lt;/h2&gt;
+&lt;p&gt;Now let&apos;s define the &lt;code&gt;SettingsView&lt;/code&gt;&lt;/p&gt;
+&lt;pre class=&quot;grvsc-container default-dark&quot; data-language=&quot;swift&quot; data-index=&quot;2&quot;&gt;&lt;code class=&quot;grvsc-code&quot;&gt;&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk4&quot;&gt;struct&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;SettingsView&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;: View {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;@AppStorage&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;unit&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;) &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;var&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; unit: Unit = Unit.&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;metric&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;var&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; body: some View {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        NavigationStack {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;            Form {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;Picker&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;Unit&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;, &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;selection&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;: $unit) {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                    &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;ForEach&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(Unit.&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;allCases&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;, &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;: \.self) { value &lt;/span&gt;&lt;span class=&quot;mtk15&quot;&gt;in&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                        &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;Text&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(value.&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;rawValue&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(value)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                    }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;            }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                .&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;navigationTitle&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;Settings&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;a href=&quot;https://developer.apple.com/documentation/swiftui/appstorage&quot;&gt;&lt;code&gt;@AppStorage&lt;/code&gt;&lt;/a&gt; is a handy property wrapper that can save and load a value from the UserDefaults. In this case, the default value is assigned to &lt;code&gt;metric&lt;/code&gt; because 95% of the World uses the Metric System (sorry USA 😉), but hey, at least our little app will support (and remember your choice) if you decide to switch to Imperial.&lt;/p&gt;
+&lt;p&gt;It&apos;s all wrapped in a NavigationStack so that we can get a nice header for free, and the Picker is bound to the &lt;strong&gt;AppStorage&lt;/strong&gt; &lt;code&gt;unit&lt;/code&gt; variable.&lt;/p&gt;
+&lt;p&gt;&lt;span
+      class=&quot;gatsby-resp-image-wrapper&quot;
+      style=&quot;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 391px; &quot;
+    &gt;
+      &lt;span
+    class=&quot;gatsby-resp-image-background-image&quot;
+    style=&quot;padding-bottom: 195.56962025316454%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAnCAYAAAAPZ2gOAAAACXBIWXMAAAsTAAALEwEAmpwYAAAEkElEQVR42u2X628UVRiH5x/oXwKUXi3pfXulBcUL3ba7W1ou3dYW4gcSrRKJQdEPUjCp1QYlfqXod4IhkmhC0AQhZilElJbubWZ3dnZnd2Zv3Xl/5j3T7S5tCmhM9AObPJnZOe88856z57xzVnK6D1uuMS8dODhMLzW2UE39Hpu6PVTX0ERNLQ5qLKOuoVG0FeMamlrpNaebXKNecroPFyT3mJe6evejtrYOp069j9nZCzj36XmcP/8ZPvrwY0xNTWN6+jimp45jauo4zp79RLRxzOy5C5h5511UV9egd98BuEbHLeng8ChV7q7C3bs+AiCwLPt48uTbJEkSVVRUCPj8zJmzoo0IG/E3b/5MO3dVYtBzxJI6evaRx3MI3KCqOjQthVgsCdPM49q165iZeQ+nT38gmJk5hRs3foRh5EVMMbZQAA0MDKK772VLauvopYmJSXBW8bgBXU8LODib5QSe/ORyhETC3Ijje9bWQCMjo2jv6rOktk5bmE6vUTKZ2QjO5yGyjEYTUNUSmpYUkiKcYT4P0UtHd58ltXb00IkTb+Hq1e9pfn4Bc3Nf4OLFrzE3N49Ll74BDwMTFUJ9nYR4EKMoGjKZAnk8IyXh5OSbkGWVfL77WFp6gHv3HuD69R9w69YvUNU4olFtE3FxnVGUGEwzR263B47ufkva09RKR48eEz9KWA7D719FobCGXC6LTIaHIP4Eup5APK4hFApCUWRomopsNkfDwy44evotqbm9i8bHveKXCodl+P0BKEoEqhqDpmlIJHTE43FxXk4kwjEqZFlBIpEqCVsc3eT1Tohx4PQDAQUrKwHIShQ+3xJu3/4V0WgM6XQWhpEWmGYGhplBJp1FOKxAlmPkcrntLjc0ttCxY+PIZi0Kh6Pw+8NCGI/riMV4nDToegrJpLFBKmWKo2GYQqgotrCjZ4tQFcLlZb/I6OHDP3Dnzl2RKUs4M9Ncz9BII5PhDCNCODTkQnvnXktqausQY8hCWVYRCMhCGAzyeIawuhoUDwmFFASDNva5LI7Ly6s8lcjpdKK5rdOSmlptYS5HYgzLu72yEsTjx0GsMOL7VvjhCd2kQeegLbS77BWznedXJGLPLc72eQiFImIeDg4OFYWtIkNej7GYLpZSaUU8m0hEE8M1NDRsC+1pMynmIReERMJ4Yq0+i9JaHkF7114uDntFcWBhebV5PkxRlfherjZiLRerTbmQq87zUCxftvDQ9sK/w38j/Ne7/EL4Qvh/Em6W63rp+j9aepul5deeKizWw6IwlcoimcxukpWkRiqDtLFdl9d3X1yxuZFvCgYjYt/C4s0ZmqkMlkNp+Fb4vFy4vvtydPfT2NgR8AaSJRzw6JEfoVBU7MS4gJaT1FP47c8UfvJxdU+J1wAnw6/Rzt79lvS600O1dfX8Btuyg92OXAFk5jkH+/vS0u9UVV2DAdeoJbnHJqi1owft7Q4sLHyFxcvfbnB5G64sMlewuPgd5j//Es3NLTx+cI95LYn/BfDGvf+VN6iyuo527KqiHZXVtPMp7NiginbX1NO+VweIHfwv4C+EZfpJwJGlfAAAAABJRU5ErkJggg==&apos;); background-size: cover; display: block;&quot;
+  &gt;&lt;/span&gt;
+  &lt;img
+        class=&quot;gatsby-resp-image-image&quot;
+        alt=&quot;Settings View&quot;
+        title=&quot;&quot;
+        src=&quot;/static/f1fce8752a55103c648bfe79ed99130a/e596f/settings-view.png&quot;
+        srcset=&quot;/static/f1fce8752a55103c648bfe79ed99130a/dda05/settings-view.png 158w,
+/static/f1fce8752a55103c648bfe79ed99130a/679a3/settings-view.png 315w,
+/static/f1fce8752a55103c648bfe79ed99130a/e596f/settings-view.png 391w&quot;
+        sizes=&quot;(max-width: 391px) 100vw, 391px&quot;
+        style=&quot;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&quot;
+        loading=&quot;lazy&quot;
+        decoding=&quot;async&quot;
+      /&gt;
+    &lt;/span&gt;&lt;/p&gt;
+&lt;h2&gt;MODCalculator View&lt;/h2&gt;
+&lt;p&gt;Now we can switch to the calculator view. From the wireframe in &lt;a href=&quot;/nitrox-calculator-using-swiftui-part1&quot;&gt;Part 1&lt;/a&gt; we can see we need to center the UI, we need a few Text elements, a Slider, and a Segment Picker.&lt;/p&gt;
+&lt;p&gt;The Slider will update the &lt;code&gt;fO2&lt;/code&gt;, fraction of Oxygen, and will have a default value of &lt;code&gt;21&lt;/code&gt; (the value for Air) and a range between &lt;code&gt;21&lt;/code&gt; and &lt;code&gt;100&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;For &lt;code&gt;ppO2&lt;/code&gt;, Partial Pressure of Oxygen (ppO₂), we&apos;ll have three possible values &lt;code&gt;1.4&lt;/code&gt;, &lt;code&gt;1.5&lt;/code&gt;, and &lt;code&gt;1.6&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;span
+      class=&quot;gatsby-resp-image-wrapper&quot;
+      style=&quot;position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 320px; &quot;
+    &gt;
+      &lt;span
+    class=&quot;gatsby-resp-image-background-image&quot;
+    style=&quot;padding-bottom: 211.39240506329116%; position: relative; bottom: 0; left: 0; background-image: url(&apos;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAqCAYAAACz+XvQAAAACXBIWXMAAAsTAAALEwEAmpwYAAAD10lEQVR42q2XWU8jORSF6/f30/wE4IUdGl6GFuKBHkAgaLaEPStJVaqSAIKwhBA4o+9GjoqkCobuseTYLl8fX9/l2PEKhYI2Nja0tbWlo6MjMV5aWtLIyIgmJia0uLio8fFxzc7Oan5+XpOTkxobG9P09LRyuZzVhYUFzc3NqVQqyatWqzo/P7dBt9sV5erqSsvLywYyNTWl0dFRAwKEbysrK6pUKib7+vpqG87MzCgMQ3n8xMvb29u7Pgtc6/rxeTemDYJAXq1WU6fTGZqMLxwsg7KUl5cX+b7f05BBfNIt+KwOAmK+IcDfqQ4Qu74D/JMCxuXl5XvAVqul+/t7PTw86PHxUc/Pz/aNyrfb21uzNzJ3d3c2dpHB93K53ANkQMEGmUxGZ2dnVpk7ODjQzs6OhRb9fD6vi4sLra2taW9vzzamsLnF4VePnCYLIEnhRVGU6hQHcHh4qEajMRQ2cTkAyZpPASnYigVpoUVpt9tmiiHAwRYHPD096ebmxtq0wAbw5OREHkdxnhoU4juEAXGsr69bJqQBshmyXrPZHAIc7KfleiLgoIZJu7MpR08zy4eASeRwfX1tgZ00NwRYr9eHNIzHlgt6HIccFPahhkmATgiB09NTFYtFc8z29ragu7SwOT4+7oVNEmCcVNEUDdHWkex/AvyTAqAd2QFidMcs8cr3MAr19+YP5cp5tZ/a71iJFs37gI4csCV3ApUAhnkgzLAW6ufGP/q28Je+/1yUX/WNBGAdcpfsQClADRAjf3Zk7Fa4LKp13/r8yA4w7oR4TQJPkgEwm83K44gf3XAwCJtCuIRPWuHIkLNpiJGxC4uxCUwMOzOmv7+/bzG4u7trtoO9XXw6e5Jx/dRzQLwYAGABMUXfzXMNAAD4RS6vk9Mzbe/8Ui2MlD06tvVsYpniBPE2Fw3hQP7C1KQU36iOlStVX7WorsNMVs2ra/3a3TMFDBAbsogBNmCCFu3QbHNz07iQMUcCGONnstn+BYYcpzMbEm+D3nROSvJymgM5HRt4BDGDNC5Me34k5TJmMw3TyOErT5FUwK+W+DWKEz3y9f94LAFomQLg72g2WDilXaPO5dy7XEb0m83G0MOJSt9V5N2jicpaOzJBjTC5SFupVFX1A0VR72rAHPGKHLFrclXfYti90oyxCdQ4Y0T1htqdbg8w4WHEN2SeO135ftC/xMCwtw0aOqcwWSyVVSiVFQS1vmDc+Mj4QaCo3lQYRn1lwDBAmCJeMOzq6mr/2ZFEU46NIJH4886ec6DSQVP65DSC8B8t1f3BYXP34KRlc0zmrgyexP8CcCuIKHO7Vp0AAAAASUVORK5CYII=&apos;); background-size: cover; display: block;&quot;
+  &gt;&lt;/span&gt;
+  &lt;img
+        class=&quot;gatsby-resp-image-image&quot;
+        alt=&quot;Wireframe&quot;
+        title=&quot;&quot;
+        src=&quot;/static/9e2316a7c00a608340492f07f114dd34/4e610/wireframe.png&quot;
+        srcset=&quot;/static/9e2316a7c00a608340492f07f114dd34/dda05/wireframe.png 158w,
+/static/9e2316a7c00a608340492f07f114dd34/679a3/wireframe.png 315w,
+/static/9e2316a7c00a608340492f07f114dd34/4e610/wireframe.png 320w&quot;
+        sizes=&quot;(max-width: 320px) 100vw, 320px&quot;
+        style=&quot;width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;&quot;
+        loading=&quot;lazy&quot;
+        decoding=&quot;async&quot;
+      /&gt;
+    &lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;Let&apos;s start with a very basic layout:&lt;/p&gt;
+&lt;pre class=&quot;grvsc-container default-dark&quot; data-language=&quot;swift&quot; data-index=&quot;3&quot;&gt;&lt;code class=&quot;grvsc-code&quot;&gt;&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk4&quot;&gt;struct&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;MODCalculatorView&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;: View {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;@AppStorage&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;unit&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;) &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;var&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; unit: Unit = Unit.&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;metric&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;@State&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;var&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; ppO2: &lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;Double&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; = &lt;/span&gt;&lt;span class=&quot;mtk7&quot;&gt;1.4&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;@State&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;var&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; fO2: &lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;Double&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; = &lt;/span&gt;&lt;span class=&quot;mtk7&quot;&gt;21&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;var&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; body: some View {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        VStack {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;            &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;Spacer&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;()&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;            VStack {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;Text&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;Max Operating Depth&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;Text&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;for&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;Text&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;EAN &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;\(&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;fO2, specifier: &lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;%0.0f&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;Text&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;is&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;Text&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;? &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;\(&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;unit == .&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;metric&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; ? &lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;meters&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; : &lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;feet&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;Slider&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                    &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;: $fO2,&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                    &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;in&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;: &lt;/span&gt;&lt;span class=&quot;mtk7&quot;&gt;21&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;mtk7&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;,&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                    &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;step&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;: &lt;/span&gt;&lt;span class=&quot;mtk7&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                    .&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;padding&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;()&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;Text&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;with ppO₂&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;Picker&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;ppO2&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;, &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;selection&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;: $ppO2) {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                    &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;Text&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;1.4&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk7&quot;&gt;1.4&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                    &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;Text&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;1.5&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk7&quot;&gt;1.5&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                    &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;Text&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;1.6&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk7&quot;&gt;1.6&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                    .&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;pickerStyle&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(.&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;segmented&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;                    .&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;padding&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;()&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;            }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;            &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;Spacer&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;()&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;code&gt;VStack&lt;/code&gt; arranges the child elements vertically, and the two &lt;code&gt;Spacer&lt;/code&gt; elements allow us to center the UI. The &lt;code&gt;Slider&lt;/code&gt; value is bound to &lt;code&gt;fO2&lt;/code&gt; and the &lt;code&gt;Picker&lt;/code&gt; is bound to &lt;code&gt;ppO2&lt;/code&gt;. That&apos;s done using a special syntax with &lt;code&gt;$&lt;/code&gt; (dollar sign) on a &lt;a href=&quot;https://developer.apple.com/documentation/swiftui/binding&quot;&gt;&lt;code&gt;Binding&amp;#x3C;T&gt;&lt;/code&gt;&lt;/a&gt; property exposed by the control.&lt;/p&gt;
+&lt;img src=&quot;/6951b86a005085576fe23de0f0116f09/demo-1.gif&quot; alt=&quot;Preview&quot; class=&quot;gif&quot;&gt;
+&lt;p&gt;Not too bad for a start, but we can make it look a little bit nicer. Let&apos;s define two extensions on &lt;code&gt;Text&lt;/code&gt;:&lt;/p&gt;
+&lt;pre class=&quot;grvsc-container default-dark&quot; data-language=&quot;swift&quot; data-index=&quot;4&quot;&gt;&lt;code class=&quot;grvsc-code&quot;&gt;&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk4&quot;&gt;extension&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk10&quot;&gt;Text&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;strong&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;() -&amp;gt; some View {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;font&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(.&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;title&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;            .&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;fontWeight&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(.&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;bold&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;            .&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;padding&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk7&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; &lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;light&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;() -&amp;gt; some View {&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;        &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;font&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(.&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;title2&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;            .&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;padding&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk7&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    }&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;and apply some styling on the text&lt;/p&gt;
+&lt;pre class=&quot;grvsc-container default-dark&quot; data-language=&quot;swift&quot; data-index=&quot;5&quot;&gt;&lt;code class=&quot;grvsc-code&quot;&gt;&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk11&quot;&gt;Text&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;Max Operating Depth&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    .&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;multilineTextAlignment&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(.&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;center&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    .&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;font&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(.&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;title&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk1&quot;&gt;    .&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;padding&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk7&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk11&quot;&gt;Text&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;for&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;light&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;()&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk11&quot;&gt;Text&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;EAN &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;\(&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;fO2, specifier: &lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;%0.0f&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;strong&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;()&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk11&quot;&gt;Text&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;is&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;light&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;()&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk11&quot;&gt;Text&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;? &lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;\(&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;unit == .&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;metric&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; ? &lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;meters&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt; : &lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;feet&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk4&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;strong&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;()&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk3&quot;&gt;// ...&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;
+&lt;span class=&quot;grvsc-line&quot;&gt;&lt;span class=&quot;grvsc-source&quot;&gt;&lt;span class=&quot;mtk11&quot;&gt;Text&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mtk8&quot;&gt;&amp;quot;with ppO₂&amp;quot;&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;mtk11&quot;&gt;font&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;(.&lt;/span&gt;&lt;span class=&quot;mtk12&quot;&gt;subheadline&lt;/span&gt;&lt;span class=&quot;mtk1&quot;&gt;)&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;Result&lt;/h2&gt;
+&lt;img src=&quot;/75cc38b92bfeac3a779507434a91b620/part2-final-preview.gif&quot; alt=&quot;Result&quot; class=&quot;gif&quot;&gt;
+&lt;h2&gt;Next&lt;/h2&gt;
+&lt;p&gt;Next, we will implement the calculations and wire up the calculator screen...&lt;/p&gt;
+&lt;style class=&quot;grvsc-styles&quot;&gt;
+  .grvsc-container {
+    overflow: auto;
+    position: relative;
+    -webkit-overflow-scrolling: touch;
+    padding-top: 1rem;
+    padding-top: var(--grvsc-padding-top, var(--grvsc-padding-v, 1rem));
+    padding-bottom: 1rem;
+    padding-bottom: var(--grvsc-padding-bottom, var(--grvsc-padding-v, 1rem));
+    border-radius: 8px;
+    border-radius: var(--grvsc-border-radius, 8px);
+    font-feature-settings: normal;
+    line-height: 1.4;
+  }
+  
+  .grvsc-code {
+    display: table;
+  }
+  
+  .grvsc-line {
+    display: table-row;
+    box-sizing: border-box;
+    width: 100%;
+    position: relative;
+  }
+  
+  .grvsc-line &gt; * {
+    position: relative;
+  }
+  
+  .grvsc-gutter-pad {
+    display: table-cell;
+    padding-left: 0.75rem;
+    padding-left: calc(var(--grvsc-padding-left, var(--grvsc-padding-h, 1.5rem)) / 2);
+  }
+  
+  .grvsc-gutter {
+    display: table-cell;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+  }
+  
+  .grvsc-gutter::before {
+    content: attr(data-content);
+  }
+  
+  .grvsc-source {
+    display: table-cell;
+    padding-left: 1.5rem;
+    padding-left: var(--grvsc-padding-left, var(--grvsc-padding-h, 1.5rem));
+    padding-right: 1.5rem;
+    padding-right: var(--grvsc-padding-right, var(--grvsc-padding-h, 1.5rem));
+  }
+  
+  .grvsc-source:empty::after {
+    content: &apos; &apos;;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+  }
+  
+  .grvsc-gutter + .grvsc-source {
+    padding-left: 0.75rem;
+    padding-left: calc(var(--grvsc-padding-left, var(--grvsc-padding-h, 1.5rem)) / 2);
+  }
+  
+  /* Line transformer styles */
+  
+  .grvsc-has-line-highlighting &gt; .grvsc-code &gt; .grvsc-line::before {
+    content: &apos; &apos;;
+    position: absolute;
+    width: 100%;
+  }
+  
+  .grvsc-line-diff-add::before {
+    background-color: var(--grvsc-line-diff-add-background-color, rgba(0, 255, 60, 0.2));
+  }
+  
+  .grvsc-line-diff-del::before {
+    background-color: var(--grvsc-line-diff-del-background-color, rgba(255, 0, 20, 0.2));
+  }
+  
+  .grvsc-line-number {
+    padding: 0 2px;
+    text-align: right;
+    opacity: 0.7;
+  }
+  
+  .default-dark {
+    background-color: #1E1E1E;
+    color: #D4D4D4;
+  }
+  .default-dark .mtk4 { color: #569CD6; }
+  .default-dark .mtk1 { color: #D4D4D4; }
+  .default-dark .mtk10 { color: #4EC9B0; }
+  .default-dark .mtk11 { color: #DCDCAA; }
+  .default-dark .mtk12 { color: #9CDCFE; }
+  .default-dark .mtk8 { color: #CE9178; }
+  .default-dark .mtk15 { color: #C586C0; }
+  .default-dark .mtk7 { color: #B5CEA8; }
+  .default-dark .mtk3 { color: #6A9955; }
+  .default-dark .grvsc-line-highlighted::before {
+    background-color: var(--grvsc-line-highlighted-background-color, rgba(255, 255, 255, 0.1));
+    box-shadow: inset var(--grvsc-line-highlighted-border-width, 4px) 0 0 0 var(--grvsc-line-highlighted-border-color, rgba(255, 255, 255, 0.5));
+  }
+&lt;/style&gt;</content:encoded></item><item><title><![CDATA[Nitrox Calculator using SwiftUI (Part 1)]]></title><description><![CDATA[This is Part 1 of a multi-part series on creating a simple iOS application for scuba divers that calculates the Maximum Operating Depth (MOD…]]></description><link>https://nikz.dev/nitrox-calculator-using-swiftui-part1/</link><guid isPermaLink="false">https://nikz.dev/nitrox-calculator-using-swiftui-part1/</guid><pubDate>Sun, 19 Feb 2023 08:00:00 GMT</pubDate><content:encoded>&lt;p&gt;This is Part 1 of a multi-part series on creating a simple iOS application for scuba divers that calculates the Maximum Operating Depth (MOD) of a Nitrox gas mix&lt;/p&gt;
 &lt;h2&gt;Background&lt;/h2&gt;
 &lt;p&gt;Before we dive into the implementation details, let&apos;s have a look at what we are going to build and why it can be useful.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Enriched Air Nitrox (EAN)&lt;/strong&gt;, commonly referred to as just &lt;strong&gt;Nitrox&lt;/strong&gt; is a gas mixture of &lt;strong&gt;oxygen&lt;/strong&gt;, &lt;strong&gt;nitrogen&lt;/strong&gt; and a minimal amount of &lt;strong&gt;other gasses&lt;/strong&gt;. The normal &lt;strong&gt;Air&lt;/strong&gt; that we breathe consists of 21% oxygen, 78% nitrogen, and 1% other gasses. EAN, as the name implies, is usually a mix enriched with more oxygen. It&apos;s widely used in recreational and technical diving because the reduced amount of nitrogen allows longer bottom time and reduced narcotic effects of the nitrogen at depth. However, like everything else in life, this doesn&apos;t come for free and without risks - beyond certain depths, the oxygen in the mix can become toxic and affect the nervous system of the diver and even cause death.&lt;/p&gt;
